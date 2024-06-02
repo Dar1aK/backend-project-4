@@ -16,8 +16,13 @@ describe('pageLoader', () => {
     });
   })
 
-  test('run pageLoader', async () => {
+  test('run pageLoader with folder', async () => {
     const result = await pageLoader('https://ru.hexlet.io/courses', folder);
+    expect(result).not.toEqual(undefined);
+  });
+
+  test('run pageLoader by default folder', async () => {
+    const result = await pageLoader('https://ru.hexlet.io/courses');
     expect(result).not.toEqual(undefined);
   });
 });
