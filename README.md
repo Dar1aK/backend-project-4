@@ -27,3 +27,7 @@ make test
 #### Step 1
 
 [![asciicast](https://asciinema.org/a/y6ca3xnVEPA0aojZb0550s7w5.svg)](https://asciinema.org/a/y6ca3xnVEPA0aojZb0550s7w5)
+
+#### Step 2
+
+[![asciicast](https://asciinema.org/a/tyHIAqqCYBfOPibr073cn4dvN.svg)](https://asciinema.org/a/tyHIAqqCYBfOPibr073cn4dvN)

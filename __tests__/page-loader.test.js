@@ -1,6 +1,7 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import cheerio from 'cheerio';
 import pageLoader from '../src/page-loader';
 
 describe('pageLoader', () => {
@@ -21,8 +22,22 @@ describe('pageLoader', () => {
     expect(result).not.toEqual(undefined);
   });
 
-  test('run pageLoader by default folder', async () => {
+  test('run pageLoader with default folder', async () => {
     const result = await pageLoader('https://ru.hexlet.io/courses');
     expect(result).not.toEqual(undefined);
+  });
+
+  test('local run pageLoader', async () => {
+    const result = await pageLoader('./__fixtures__/courses/index.html');
+    expect(result).not.toEqual(undefined);
+  });
+
+  test('check pageLoader with img', async () => {
+    const result = await pageLoader('./__fixtures__/courses/index.html');
+
+    const $ = cheerio.load(result);
+    const images = $('img').map((_, {attribs}) => attribs.src)
+    const imagesInLocalFolder = $('img').map((_, {attribs}) => attribs.src).filter((_, imgSrc) => imgSrc.startsWith(process.cwd()))
+    expect(images.length).toEqual(imagesInLocalFolder.length);
   });
 });
