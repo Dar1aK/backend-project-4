@@ -3,11 +3,7 @@ import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
 
-const pageLoader = (pagePath, dir = process.cwd()) => {
-    const isLoadingFromTheInternet = pagePath.startsWith('http')
-    const fetch = isLoadingFromTheInternet ? axios.get(pagePath) : fsp.readFile(pagePath, { encoding: 'utf8' })
-    const file = pagePath.replace(/\W+/g, '-')
-    const imagesDir = `${file}_files`
+const fetchForImages = (fetch, imagesDir, dir, file, isLoadingFromTheInternet) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -35,5 +31,16 @@ const pageLoader = (pagePath, dir = process.cwd()) => {
         .catch((error) => {
             console.log('error', error);
         });
+}
+
+const pageLoader = async (pagePath, dir = process.cwd()) => {
+    const isLoadingFromTheInternet = pagePath.startsWith('http')
+    const fetch = isLoadingFromTheInternet ? axios.get(pagePath) : fsp.readFile(pagePath, { encoding: 'utf8' })
+    const file = pagePath.replace(/\W+/g, '-')
+    const filesDir = `${file}_files`
+    const newHtml = fetchForImages(fetch, filesDir, dir, file, isLoadingFromTheInternet)
+
+    console.log('newHtml', await newHtml)
+    return newHtml;
 }
 export default pageLoader;
