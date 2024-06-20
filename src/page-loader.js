@@ -30,7 +30,7 @@ export const fetchForImages = (fetch, imagesDir, dir, file, isLoadingFromTheInte
             return newHtml
         })
         .catch((error) => {
-            console.log('error', error);
+            // console.log('error', error);
         });
 }
 
@@ -55,7 +55,7 @@ export const fetchForScripts = (html, filesDir, dir) => {
                 return await fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), fileData, "binary")
             })
             .catch((error) => {
-                console.log('error', error);
+                // console.log('error', error);
             });
     })
     return newHtml
