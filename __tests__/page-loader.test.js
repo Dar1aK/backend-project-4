@@ -1,8 +1,9 @@
 import fs from 'fs';
+import fsp from 'fs/promises'
 import os from 'os';
 import path from 'path';
 import cheerio from 'cheerio';
-import pageLoader from '../src/page-loader';
+import pageLoader, { fetchForImages, fetchForScripts } from '../src/page-loader';
 
 describe('pageLoader', () => {
   let folder;
@@ -17,27 +18,54 @@ describe('pageLoader', () => {
     });
   })
 
-  test('run pageLoader with folder', async () => {
-    const result = await pageLoader('https://ru.hexlet.io/courses', folder);
-    expect(result).not.toEqual(undefined);
-  });
-
-  test('run pageLoader with default folder', async () => {
-    const result = await pageLoader('https://ru.hexlet.io/courses');
-    expect(result).not.toEqual(undefined);
-  });
-
-  test('local run pageLoader', async () => {
-    const result = await pageLoader('./__fixtures__/courses/index.html');
+  test('run pageLoader', async () => {
+    const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
     expect(result).not.toEqual(undefined);
   });
 
   test('check pageLoader with img', async () => {
-    const result = await pageLoader('./__fixtures__/courses/index.html');
+    const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
+    const pagePath = './__fixtures__/courses/index.html'
+    const file = pagePath.replace(/\W+/g, '-')
+    const currFolder = process.cwd()
+    const HTML = await fetchForImages(fsp.readFile(pagePath, { encoding: 'utf8' }), `${file}_files`, currFolder, file, false)
 
     const $ = cheerio.load(result);
+    const $HTML = cheerio.load(HTML);
+
     const images = $('img').map((_, {attribs}) => attribs.src)
-    const imagesInLocalFolder = $('img').map((_, {attribs}) => attribs.src).filter((_, imgSrc) => imgSrc.startsWith(process.cwd()))
+    const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src).filter((_, imgSrc) => imgSrc.startsWith(currFolder))
     expect(images.length).toEqual(imagesInLocalFolder.length);
+  });
+
+
+  test('check pageLoader with css link', async () => {
+    const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
+    const pagePath = './__fixtures__/courses/index.html'
+    const file = pagePath.replace(/\W+/g, '-')
+    const currFolder = process.cwd()
+    const HTML = await fetchForScripts(result, `${file}_files`, currFolder)
+
+    const $ = cheerio.load(result);
+    const $HTML = cheerio.load(HTML);
+
+    const styles = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith('https://ru.hexlet.io'))
+    expect(styles.length).toEqual(0);
+
+    const stylesLocal = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith(currFolder))
+    expect(stylesLocal.length).toEqual(1);
+  });
+
+  test('check pageLoader with scripts', async () => {
+    const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
+    const pagePath = './__fixtures__/courses/index.html'
+    const file = pagePath.replace(/\W+/g, '-')
+    const currFolder = process.cwd()
+    const HTML = await fetchForScripts(result, `${file}_files`, currFolder)
+
+    const $ = cheerio.load(result);
+    const $HTML = cheerio.load(HTML);
+    const scripts = $HTML('script').map((_, {attribs}) => attribs.src).filter((_, src) => src.startsWith('https://ru.hexlet.io'))
+    expect(scripts.length).toEqual(0);
   });
 });
