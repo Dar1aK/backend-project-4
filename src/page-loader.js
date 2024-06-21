@@ -11,10 +11,11 @@ export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingF
 
             const $ = cheerio.load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
-            const requests = images.map((_, src) => {
+            images?.length ? images.map((_, src) => {
 
                 const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
                 if (!url) {
+                    fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
                     return null
                 }
                 const srcName = src.replace(/\W+/g, '-')
@@ -30,7 +31,7 @@ export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingF
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
                     .catch(console.log)
-            })
+            }) : fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
             return newHtml
         })
         .catch((error) => {
@@ -73,14 +74,9 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const fetch = axios.get(pagePath)
     const file = pagePath.replace(/\W+/g, '-')
     const filesDir = `${file}_files`
-    let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath, true,)
-
-    // console.log('newHtml', newHtml)
+    let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath, true)
 
     newHtml = await fetchForScripts(newHtml, filesDir, dir, pagePath)
-
-    // console.log('newHtml 1', newHtml)
-
 
     return newHtml;
 }
