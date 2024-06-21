@@ -3,7 +3,7 @@ import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
 
-export const fetchForImages = (fetch, imagesDir, dir, file, isLoadingFromTheInternet) => {
+export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -11,8 +11,12 @@ export const fetchForImages = (fetch, imagesDir, dir, file, isLoadingFromTheInte
 
             const $ = cheerio.load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
-            console.log('images', images)
             const requests = images.map((_, src) => {
+
+                const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
+                if (!url) {
+                    return null
+                }
                 const srcName = src.replace(/\W+/g, '-')
                 const extension = src.split('.')
                 newHtml = newHtml.replace(src, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
@@ -34,7 +38,7 @@ export const fetchForImages = (fetch, imagesDir, dir, file, isLoadingFromTheInte
         });
 }
 
-export const fetchForScripts = (html, filesDir, dir) => {
+export const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     let newHtml = html
     const $ = cheerio.load(html);
     const links = $('link').map((_, { attribs }) => {
@@ -43,6 +47,10 @@ export const fetchForScripts = (html, filesDir, dir) => {
     const scripts = $('script').map((_, { attribs }) => attribs.src)
     const requests = [...links, ...scripts].forEach((src) => {
 
+        const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
+        if (!url) {
+            return null
+        }
         const srcName = src.replace(/\W+/g, '-')
         const extension = src.split('.')
 
@@ -65,15 +73,15 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const fetch = axios.get(pagePath)
     const file = pagePath.replace(/\W+/g, '-')
     const filesDir = `${file}_files`
-    let newHtml = fetchForImages(fetch, filesDir, dir, file, true)
+    let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath, true,)
 
-    console.log('**newHtml', await newHtml)
+    // console.log('newHtml', newHtml)
 
-    newHtml = fetchForScripts(await newHtml, filesDir, dir)
+    newHtml = await fetchForScripts(newHtml, filesDir, dir, pagePath)
 
-    console.log('**newHtml 1', await newHtml)
+    // console.log('newHtml 1', newHtml)
 
 
-    return await newHtml;
+    return newHtml;
 }
 export default pageLoader;

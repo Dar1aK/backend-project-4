@@ -3,7 +3,7 @@ import fsp from 'fs/promises'
 import os from 'os';
 import path from 'path';
 import cheerio from 'cheerio';
-import pageLoader, { fetchForImages, fetchForScripts } from '../src/page-loader';
+import { fetchForImages, fetchForScripts } from '../src/page-loader';
 
 describe('pageLoader', () => {
   let folder;
@@ -28,7 +28,7 @@ describe('pageLoader', () => {
     const pagePath = './__fixtures__/courses/index.html'
     const file = pagePath.replace(/\W+/g, '-')
     const currFolder = process.cwd()
-    const HTML = await fetchForImages(fsp.readFile(pagePath, { encoding: 'utf8' }), `${file}_files`, currFolder, file, false)
+    const HTML = await fetchForImages(fsp.readFile(pagePath, { encoding: 'utf8' }), `${file}_files`, currFolder, file, 'https://ru.hexlet.io', false)
 
     const $ = cheerio.load(result);
     const $HTML = cheerio.load(HTML);
@@ -44,7 +44,7 @@ describe('pageLoader', () => {
     const pagePath = './__fixtures__/courses/index.html'
     const file = pagePath.replace(/\W+/g, '-')
     const currFolder = process.cwd()
-    const HTML = await fetchForScripts(result, `${file}_files`, currFolder)
+    const HTML = await fetchForScripts(result, `${file}_files`, currFolder, pagePath, 'https://ru.hexlet.io')
 
     const $ = cheerio.load(result);
     const $HTML = cheerio.load(HTML);
@@ -61,7 +61,7 @@ describe('pageLoader', () => {
     const pagePath = './__fixtures__/courses/index.html'
     const file = pagePath.replace(/\W+/g, '-')
     const currFolder = process.cwd()
-    const HTML = await fetchForScripts(result, `${file}_files`, currFolder)
+    const HTML = await fetchForScripts(result, `${file}_files`, currFolder, pagePath, 'https://ru.hexlet.io')
 
     const $ = cheerio.load(result);
     const $HTML = cheerio.load(HTML);
