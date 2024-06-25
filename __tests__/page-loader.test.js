@@ -5,6 +5,8 @@ import path from 'path';
 import cheerio from 'cheerio';
 import { fetchForImages, fetchForScripts } from '../src/page-loader';
 
+import nock from 'nock'
+
 describe('pageLoader', () => {
   let folder;
   beforeEach(async () => {
@@ -19,6 +21,16 @@ describe('pageLoader', () => {
   })
 
   test('run pageLoader', async () => {
+    const scope = nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, async () => {
+        const file = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' })
+        console.log('result', file)
+        return file
+      })
+
+      console.log('scope', await scope)
+
     const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
     expect(result).not.toEqual(undefined);
   });
