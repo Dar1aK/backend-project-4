@@ -3,7 +3,7 @@ import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
 
-export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
+const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -14,10 +14,10 @@ export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingF
             images?.length ? images.map((_, src) => {
 
                 const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
-                if (!url) {
-                    fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-                    return null
-                }
+                // if (!url) {
+                //     fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+                //     return null
+                // }
                 const srcName = src.replace(/\W+/g, '-')
                 const extension = src.split('.')
                 newHtml = newHtml.replace(src, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
@@ -25,7 +25,7 @@ export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingF
                 fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
 
                 return fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
-                    .then(() => isLoadingFromTheInternet ? axios.get(src, { responseType: 'binary' }) : fsp.readFile(path.join(dir, src)))
+                    .then(() => axios.get(src, { responseType: 'binary' }))
                     .then((img) => {
                         const imgData = img.data ?? img
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
@@ -39,7 +39,7 @@ export const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingF
         });
 }
 
-export const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
+const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     let newHtml = html
     const $ = cheerio.load(html);
     const links = $('link').map((_, { attribs }) => {
@@ -49,9 +49,9 @@ export const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     const requests = [...links, ...scripts].forEach((src) => {
 
         const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
-        if (!url) {
-            return null
-        }
+        // if (!url) {
+        //     return null
+        // }
         const srcName = src.replace(/\W+/g, '-')
         const extension = src.split('.')
 
