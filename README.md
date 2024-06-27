@@ -35,3 +35,7 @@ make test
 #### Step 3
 
 [![asciicast](https://asciinema.org/a/uct16nUn65kG43hBGkDsnubkK.svg)](https://asciinema.org/a/uct16nUn65kG43hBGkDsnubkK)
+
+#### Step 4
+
+[![asciicast](https://asciinema.org/a/8EKz2UO875t0dIAvnV2LgR3c3.svg)](https://asciinema.org/a/8EKz2UO875t0dIAvnV2LgR3c3)

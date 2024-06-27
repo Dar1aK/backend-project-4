@@ -1,4 +1,3 @@
-import fs from 'fs';
 import fsp from 'fs/promises'
 import os from 'os';
 import path from 'path';
@@ -11,7 +10,7 @@ import pageLoader from '../src/page-loader';
 describe('pageLoader', () => {
   let folder;
   beforeEach(async () => {
-    await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'), (err, tempFolder) => {
+    await fsp.mkdtemp(path.join(os.tmpdir(), 'page-loader-'), (err, tempFolder) => {
       if (err)
         console.log(err);
       else {
@@ -55,22 +54,27 @@ describe('pageLoader', () => {
   });
 
 
-  // test('check pageLoader with css link', async () => {
-  //   const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
-  //   const pagePath = './__fixtures__/courses/index.html'
-  //   const file = pagePath.replace(/\W+/g, '-')
-  //   const currFolder = process.cwd()
-  //   const HTML = await fetchForScripts(result, `${file}_files`, currFolder, pagePath, 'https://ru.hexlet.io')
+  test('check pageLoader with css link', async () => {
+    const currFolder = process.cwd()
 
-  //   const $ = cheerio.load(result);
-  //   const $HTML = cheerio.load(HTML);
+    nock('https://ru.hexlet.io')
+    .get('/courses')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
 
-  //   const styles = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith('https://ru.hexlet.io'))
-  //   expect(styles.length).toEqual(0);
+    nock('http://localhost')
+    .get('/__fixtures__/courses/assets/nodejs.png')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
 
-  //   const stylesLocal = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith(currFolder))
-  //   expect(stylesLocal.length).toEqual(1);
-  // });
+    const HTML = await pageLoader('https://ru.hexlet.io/courses')
+
+    const $HTML = cheerio.load(HTML);
+
+    const styles = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith('https://ru.hexlet.io'))
+    expect(styles.length).toEqual(0);
+
+    const stylesLocal = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith(currFolder))
+    expect(stylesLocal.length).toEqual(1);
+  });
 
   // test('check pageLoader with scripts', async () => {
   //   const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });

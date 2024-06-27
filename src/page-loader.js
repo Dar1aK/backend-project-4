@@ -5,7 +5,7 @@ import cheerio from 'cheerio';
 
 var debug = require('debug')('http')
   , http = require('http')
-  , name = 'PageLoader';
+  , name = 'page-loader';
 
 const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
