@@ -24,11 +24,7 @@ describe('pageLoader', () => {
   test('run pageLoader', async () => {
     nock('https://ru.hexlet.io')
       .get('/courses')
-      .reply(200, async () => {
-        const file = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' })
-        console.log('result', file)
-        return file
-      })
+      .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
 
       const result = await pageLoader('https://ru.hexlet.io/courses')
 

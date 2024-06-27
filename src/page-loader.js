@@ -3,11 +3,17 @@ import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
 
+var debug = require('debug')('http')
+  , http = require('http')
+  , name = 'PageLoader';
+
 const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
             let newHtml = html
+
+            debug('start', newHtml)
 
             const $ = cheerio.load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
@@ -35,7 +41,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
             return newHtml
         })
         .catch((error) => {
-            // console.log('error', error);
+            debug('fetchForImages error', error)
         });
 }
 
@@ -64,7 +70,7 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
                 return await fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), fileData, "binary")
             })
             .catch((error) => {
-                // console.log('error', error);
+                debug('fetchForScripts error', error)
             });
     })
     return newHtml
