@@ -88,4 +88,20 @@ describe('pageLoader', () => {
   //   const scripts = $HTML('script').map((_, {attribs}) => attribs.src).filter((_, src) => src.startsWith('https://ru.hexlet.io'))
   //   expect(scripts.length).toEqual(0);
   // });
+
+  test('check pageLoader with error link', async () => {
+    const currFolder = process.cwd()
+
+    nock('https://ru.hexlet.io')
+    .get('/11111')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses11111/index.html'), { encoding: 'utf8' }))
+
+    nock('http://localhost')
+    .get('/__fixtures__/courses/assets/nodejs.png')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
+
+    const HTML = await pageLoader('https://ru.hexlet.io/11111')
+
+    expect(HTML).toEqual(undefined)
+  });
 });

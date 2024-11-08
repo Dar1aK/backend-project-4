@@ -2,10 +2,8 @@ import axios from 'axios'
 import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
+import debug from 'debug'
 
-var debug = require('debug')('http')
-  , http = require('http')
-  , name = 'page-loader';
 
 const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
@@ -46,6 +44,11 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
 }
 
 const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
+    if (!html) {
+        debug('fetchForScripts error')
+        console.log('fetchForScripts error')
+        return
+    }
     let newHtml = html
     const $ = cheerio.load(html);
     const links = $('link').map((_, { attribs }) => {
