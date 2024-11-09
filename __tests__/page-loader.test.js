@@ -76,19 +76,6 @@ describe('pageLoader', () => {
     expect(stylesLocal.length).toEqual(1);
   });
 
-  // test('check pageLoader with scripts', async () => {
-  //   const result = await fsp.readFile('./__fixtures__/courses/index.html', { encoding: 'utf8' });
-  //   const pagePath = './__fixtures__/courses/index.html'
-  //   const file = pagePath.replace(/\W+/g, '-')
-  //   const currFolder = process.cwd()
-  //   const HTML = await fetchForScripts(result, `${file}_files`, currFolder, pagePath, 'https://ru.hexlet.io')
-
-  //   const $ = cheerio.load(result);
-  //   const $HTML = cheerio.load(HTML);
-  //   const scripts = $HTML('script').map((_, {attribs}) => attribs.src).filter((_, src) => src.startsWith('https://ru.hexlet.io'))
-  //   expect(scripts.length).toEqual(0);
-  // });
-
   test('check pageLoader with error link', async () => {
     nock('https://ru.hexlet.io')
     .get('/11111')

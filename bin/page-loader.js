@@ -12,10 +12,6 @@ program
   .version('1.0.0')
   .option('-o, --output [dir]', 'output dir (default: "/home/user/current-dir"')
   .arguments('<path>')
-  .action((path, options) => {
-    const result = pageLoader(path, options.output);
-    console.log(result);
-    return result;
-  });
+  .action((path, options) => pageLoader(path, options.output));
 
 program.parse(process.argv);

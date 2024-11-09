@@ -27,7 +27,7 @@ const tasksScripts = new Listr([
 	},
 ]);
 
-const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
+const fetchForImages = (fetch, imagesDir, dir, file) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -43,11 +43,6 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
                     src
                 })
 
-                // const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
-                // if (!url) {
-                //     fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-                //     return null
-                // }
                 const srcName = src.replace(/\W+/g, '-')
                 const extension = src.split('.')
                 newHtml = newHtml.replace(src, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
@@ -71,7 +66,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
         });
 }
 
-const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
+const fetchForScripts = (html, filesDir, dir) => {
     if (!html) {
         log('fetchForScripts error')
         console.error('fetchForScripts error')
@@ -92,10 +87,6 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
             src
         })
 
-        // const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
-        // if (!url) {
-        //     return null
-        // }
         const srcName = src.replace(/\W+/g, '-')
         const extension = src.split('.')
 
@@ -123,9 +114,9 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const filesDir = `${file}_files`
 
 
-    let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath, true)
+    let newHtml = await fetchForImages(fetch, filesDir, dir, file)
 
-    newHtml = await fetchForScripts(newHtml, filesDir, dir, pagePath)
+    newHtml = await fetchForScripts(newHtml, filesDir, dir)
 
     return newHtml;
 }
