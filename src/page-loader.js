@@ -62,7 +62,7 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
         .catch((error) => {
             log('fetchForImages error', error)
             error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
-            return Promise.reject('fetchForImages error', error)
+            return Promise.reject(new Error('fetchForImages error', error))
         });
 }
 
@@ -70,7 +70,7 @@ const fetchForScripts = (html, filesDir, dir) => {
     if (!html) {
         log('fetchForScripts error')
         console.error('fetchForScripts error')
-        return Promise.reject('fetchForScripts error')
+        return Promise.reject(new Error('fetchForScripts error'))
     }
     let newHtml = html
 
@@ -101,7 +101,7 @@ const fetchForScripts = (html, filesDir, dir) => {
             .catch((error) => {
                 debug('fetchForScripts error', error)
                 error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
-                return Promise.reject(`fetchForScripts error ${error}`)
+                return Promise.reject(new Error(`fetchForScripts error ${error}`))
 
             });
     })
