@@ -3,8 +3,29 @@ import fsp from 'fs/promises'
 import path from 'path';
 import cheerio from 'cheerio';
 import debug from 'debug'
+import Listr from 'listr';
 
 const log = debug('page-loader');
+
+const tasksImg = new Listr([
+	{
+		title: 'Images',
+		task: (ctx) => {
+            console.log(`images: ${ctx.src}`)
+            return Promise.resolve(ctx.src)
+        }
+	},
+]);
+
+const tasksScripts = new Listr([
+	{
+		title: 'Scripts',
+		task: (ctx) => {
+            console.log(`Scripts: ${ctx.src}`)
+            return Promise.resolve(ctx.src)
+        }
+	},
+]);
 
 const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
@@ -17,6 +38,10 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
             const $ = cheerio.load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
             images?.length ? images.map((_, src) => {
+
+                tasksImg.run({
+                    src
+                })
 
                 // const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
                 // if (!url) {
@@ -63,6 +88,10 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     const scripts = $('script').map((_, { attribs }) => attribs.src)
     const requests = [...links, ...scripts].forEach((src) => {
 
+        tasksScripts.run({
+            src
+        })
+
         // const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
         // if (!url) {
         //     return null
@@ -92,6 +121,8 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const fetch = axios.get(pagePath)
     const file = pagePath.replace(/\W+/g, '-')
     const filesDir = `${file}_files`
+
+
     let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath, true)
 
     newHtml = await fetchForScripts(newHtml, filesDir, dir, pagePath)
