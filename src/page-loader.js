@@ -41,18 +41,16 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
         })
         .catch((error) => {
             log('fetchForImages error', error)
-            Error(`fetchForImages error ${error}`)
-            console.error(`${error.response.status} ${error.response.statusText}`)
-            return process.exit(1)
+            error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
+            return Error(`fetchForImages error ${error}`)
         });
 }
 
 const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     if (!html) {
         log('fetchForScripts error')
-        Error('fetchForScripts error')
-        console.error(`${error.response.status} ${error.response.statusText}`)
-        return process.exit(1)
+        console.error('fetchForScripts error')
+        return Error('fetchForScripts error')
     }
     let newHtml = html
 
@@ -82,9 +80,9 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
             })
             .catch((error) => {
                 debug('fetchForScripts error', error)
-                Error(`fetchForScripts error ${error}`)
-                console.error(`${error.response.status} ${error.response.statusText}`)
-                return process.exit(1)
+                error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
+                return Error(`fetchForScripts error ${error}`)
+
             });
     })
     return newHtml
