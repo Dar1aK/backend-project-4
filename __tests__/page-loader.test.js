@@ -1,7 +1,7 @@
 import fsp from 'fs/promises'
 import os from 'os';
 import path from 'path';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 import nock from 'nock'
 
 import pageLoader from '../src/page-loader';
@@ -44,8 +44,8 @@ describe('pageLoader', () => {
 
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
 
-    const $ = cheerio.load(result);
-    const $HTML = cheerio.load(HTML);
+    const $ = load(result);
+    const $HTML = load(HTML);
 
     const images = $('img').map((_, {attribs}) => attribs.src)
     const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src).filter((_, imgSrc) => imgSrc.startsWith(currFolder))
@@ -67,7 +67,7 @@ describe('pageLoader', () => {
 
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
 
-    const $HTML = cheerio.load(HTML);
+    const $HTML = load(HTML);
 
     const styles = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith('https://ru.hexlet.io'))
     expect(styles.length).toEqual(0);

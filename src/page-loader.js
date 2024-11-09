@@ -1,7 +1,7 @@
 import axios from 'axios'
 import fsp from 'fs/promises'
 import path from 'path';
-import cheerio from 'cheerio';
+import { load } from 'cheerio';
 import debug from 'debug'
 import Listr from 'listr';
 
@@ -35,7 +35,7 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
 
             log('start', newHtml)
 
-            const $ = cheerio.load(html);
+            const $ = load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
             images?.length ? images.map((_, src) => {
 
@@ -76,7 +76,7 @@ const fetchForScripts = (html, filesDir, dir) => {
 
     log('start scripts', newHtml)
 
-    const $ = cheerio.load(html);
+    const $ = load(html);
     const links = $('link').map((_, { attribs }) => {
         return attribs.href.endsWith('.css') ? attribs.href : null
     }).filter(item => item)
