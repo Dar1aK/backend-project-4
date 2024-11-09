@@ -88,4 +88,12 @@ describe('pageLoader', () => {
 
     expect(async () => await pageLoader('https://ru.hexlet.io/11111')).rejects.toThrow()
   });
+
+  test('run pageLoader with not existing directory', async () => {
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
+
+    expect(async () => await pageLoader('https://ru.hexlet.io/courses', '/not-exist')).rejects.toThrow()
+  });
 });

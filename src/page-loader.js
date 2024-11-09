@@ -113,6 +113,11 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const file = pagePath.replace(/\W+/g, '-')
     const filesDir = `${file}_files`
 
+    try {
+        await fsp.access(dir)
+    } catch {
+        return Promise.reject(new Error('Directory is not exist'))
+    }
 
     let newHtml = await fetchForImages(fetch, filesDir, dir, file)
 
