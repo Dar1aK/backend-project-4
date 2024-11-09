@@ -90,8 +90,6 @@ describe('pageLoader', () => {
   // });
 
   test('check pageLoader with error link', async () => {
-    const currFolder = process.cwd()
-
     nock('https://ru.hexlet.io')
     .get('/11111')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses11111/index.html'), { encoding: 'utf8' }))
@@ -102,6 +100,8 @@ describe('pageLoader', () => {
 
     const HTML = await pageLoader('https://ru.hexlet.io/11111')
 
-    expect(HTML).toEqual(undefined)
+    expect(HTML).toBeInstanceOf(Error)
   });
+
+
 });

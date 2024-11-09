@@ -41,13 +41,16 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
         })
         .catch((error) => {
             log('fetchForImages error', error)
+            Error(`fetchForImages error ${error}`)
+            process.exit(1)
         });
 }
 
 const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     if (!html) {
         log('fetchForScripts error')
-        return
+        Error('fetchForScripts error')
+        process.exit(1)
     }
     let newHtml = html
 
@@ -77,6 +80,8 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
             })
             .catch((error) => {
                 debug('fetchForScripts error', error)
+                Error(`fetchForScripts error ${error}`)
+                process.exit(1)
             });
     })
     return newHtml
