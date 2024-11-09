@@ -4,6 +4,7 @@ import path from 'path';
 import cheerio from 'cheerio';
 import debug from 'debug'
 
+const log = debug('page-loader');
 
 const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheInternet) => {
     return fetch
@@ -11,7 +12,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
             const html = result.data ?? result
             let newHtml = html
 
-            debug('start', newHtml)
+            log('start', newHtml)
 
             const $ = cheerio.load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
@@ -39,17 +40,19 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
             return newHtml
         })
         .catch((error) => {
-            debug('fetchForImages error', error)
+            log('fetchForImages error', error)
         });
 }
 
 const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     if (!html) {
-        debug('fetchForScripts error')
-        console.log('fetchForScripts error')
+        log('fetchForScripts error')
         return
     }
     let newHtml = html
+
+    log('start scripts', newHtml)
+
     const $ = cheerio.load(html);
     const links = $('link').map((_, { attribs }) => {
         return attribs.href.endsWith('.css') ? attribs.href : null
