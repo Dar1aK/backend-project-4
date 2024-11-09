@@ -61,7 +61,6 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
         })
         .catch((error) => {
             log('fetchForImages error', error)
-            error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
             return Promise.reject(new Error('fetchForImages error', error))
         });
 }
@@ -100,7 +99,6 @@ const fetchForScripts = (html, filesDir, dir) => {
             })
             .catch((error) => {
                 debug('fetchForScripts error', error)
-                error?.response?.status && console.error(`${error.response.status} ${error?.response?.statusText}`)
                 return Promise.reject(new Error(`fetchForScripts error ${error}`))
 
             });
