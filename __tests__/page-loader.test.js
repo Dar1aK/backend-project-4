@@ -85,8 +85,7 @@ describe('pageLoader', () => {
     .get('/__fixtures__/courses/assets/nodejs.png')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
 
-    const HTML = await pageLoader('https://ru.hexlet.io/11111')
 
-    expect(HTML).toBeInstanceOf(Error)
+    expect(async () => await pageLoader('https://ru.hexlet.io/11111')).rejects.toThrow()
   });
 });
