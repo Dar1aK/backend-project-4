@@ -4,6 +4,7 @@ import path from 'path';
 import { load } from 'cheerio';
 import debug from 'debug'
 import Listr from 'listr';
+import { error } from 'console';
 
 const log = debug('page-loader');
 
@@ -55,7 +56,10 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
                         const imgData = img.data ?? img
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
-                    .catch(console.log)
+                    .catch((error) => {
+                        log('fetchForImages write error', error)
+                        return Promise.reject(new Error('fetchForImages write error', error))
+                    })
             }) : fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
             return newHtml
         })
