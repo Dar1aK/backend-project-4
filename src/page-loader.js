@@ -18,7 +18,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
             const images = $('img').map((_, { attribs }) => attribs.src)
             images?.length ? images.map((_, src) => {
 
-                const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
+                // const url = isLoadingFromTheInternet ? src.startsWith(new URL(pagePath).origin) : (src.startsWith(new URL(pagePath).origin) || src.startsWith('/'))
                 // if (!url) {
                 //     fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
                 //     return null
@@ -42,7 +42,8 @@ const fetchForImages = (fetch, imagesDir, dir, file, pagePath, isLoadingFromTheI
         .catch((error) => {
             log('fetchForImages error', error)
             Error(`fetchForImages error ${error}`)
-            process.exit(1)
+            console.error(`${error.response.status} ${error.response.statusText}`)
+            return process.exit(1)
         });
 }
 
@@ -50,7 +51,8 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     if (!html) {
         log('fetchForScripts error')
         Error('fetchForScripts error')
-        process.exit(1)
+        console.error(`${error.response.status} ${error.response.statusText}`)
+        return process.exit(1)
     }
     let newHtml = html
 
@@ -63,7 +65,7 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
     const scripts = $('script').map((_, { attribs }) => attribs.src)
     const requests = [...links, ...scripts].forEach((src) => {
 
-        const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
+        // const url = linksPath ? src.startsWith(new URL(linksPath).origin) || src.startsWith('/') : src.startsWith(new URL(paths).origin)
         // if (!url) {
         //     return null
         // }
@@ -81,7 +83,8 @@ const fetchForScripts = (html, filesDir, dir, paths, linksPath) => {
             .catch((error) => {
                 debug('fetchForScripts error', error)
                 Error(`fetchForScripts error ${error}`)
-                process.exit(1)
+                console.error(`${error.response.status} ${error.response.statusText}`)
+                return process.exit(1)
             });
     })
     return newHtml

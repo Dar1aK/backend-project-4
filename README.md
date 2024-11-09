@@ -39,3 +39,7 @@ make test
 #### Step 4
 
 [![asciicast](https://asciinema.org/a/8EKz2UO875t0dIAvnV2LgR3c3.svg)](https://asciinema.org/a/8EKz2UO875t0dIAvnV2LgR3c3)
+
+#### Step 5
+
+[![asciicast](https://asciinema.org/a/EYPz1PNKPykA8vnUIGbiyYwI7.svg)](https://asciinema.org/a/EYPz1PNKPykA8vnUIGbiyYwI7)

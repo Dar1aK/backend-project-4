@@ -102,6 +102,4 @@ describe('pageLoader', () => {
 
     expect(HTML).toBeInstanceOf(Error)
   });
-
-
 });
