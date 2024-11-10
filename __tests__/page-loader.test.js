@@ -37,9 +37,7 @@ describe('pageLoader', () => {
     nock('https://ru.hexlet.io')
     .get('/courses')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
-
-    nock('http://localhost')
-    .get('/__fixtures__/courses/assets/nodejs.png')
+    .get('/courses/assets/nodejs.png')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
 
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
