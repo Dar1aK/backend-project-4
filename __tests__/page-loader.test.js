@@ -18,13 +18,19 @@ describe('pageLoader', () => {
         folder = tempFolder;
       }
     });
+
+    nock('https://ru.hexlet.io')
+    .persist()
+    .get('/courses')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
+    .get('/courses/assets/nodejs.png')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
+    .get('/11111')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')))
+
   })
 
   test('run pageLoader', async () => {
-    nock('https://ru.hexlet.io')
-      .get('/courses')
-      .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
-
       const result = await pageLoader('https://ru.hexlet.io/courses')
 
     expect(result).not.toEqual(undefined);
@@ -33,12 +39,6 @@ describe('pageLoader', () => {
   test('check pageLoader with img', async () => {
     const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
     const currFolder = process.cwd()
-
-    nock('https://ru.hexlet.io')
-    .get('/courses')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
-    .get('/courses/assets/nodejs.png')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
 
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
 
@@ -55,14 +55,6 @@ describe('pageLoader', () => {
   test('check pageLoader with css link', async () => {
     const currFolder = process.cwd()
 
-    nock('https://ru.hexlet.io')
-    .get('/courses')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
-
-    nock('http://localhost')
-    .get('/__fixtures__/courses/assets/nodejs.png')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
-
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
 
     const $HTML = load(HTML);
@@ -75,23 +67,10 @@ describe('pageLoader', () => {
   });
 
   test('check pageLoader with error link', async () => {
-    nock('https://ru.hexlet.io')
-    .get('/11111')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses11111/index.html'), { encoding: 'utf8' }))
-
-    nock('http://localhost')
-    .get('/__fixtures__/courses/assets/nodejs.png')
-    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
-
-
     expect(async () => await pageLoader('https://ru.hexlet.io/11111')).rejects.toThrow()
   });
 
   test('run pageLoader with not existing directory', async () => {
-    nock('https://ru.hexlet.io')
-      .get('/courses')
-      .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
-
     expect(async () => await pageLoader('https://ru.hexlet.io/courses', '/not-exist')).rejects.toThrow()
   });
 });
