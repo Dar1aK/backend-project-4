@@ -4,7 +4,6 @@ import path from 'path';
 import { load } from 'cheerio';
 import debug from 'debug'
 import Listr from 'listr';
-import { error } from 'console';
 
 const log = debug('page-loader');
 
@@ -28,7 +27,7 @@ const tasksScripts = new Listr([
 	},
 ]);
 
-const fetchForImages = (fetch, imagesDir, dir, file) => {
+const fetchForImages = (fetch, imagesDir, dir, file, pagePath) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -52,10 +51,20 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
 
                 fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
 
+                console.log('src', src)
                 return axios.get(src, { responseType: 'binary' })
                     .then((img) => {
-                        const imgData = img.data ?? img
-                        return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
+                        return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), img.data, "binary")
+                    })
+                    .catch((error) => {
+                        log('fetchForImages write error', error)
+                    })
+                    .then(() => {
+                        const url = (new URL(pagePath)).origin
+                        return axios.get(`${url}${src}`, { responseType: 'binary' })
+                    })
+                    .then((img) => {
+                        return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), img.data, "binary")
                     })
                     .catch((error) => {
                         console.log('error', error)
@@ -123,7 +132,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
         return Promise.reject(new Error('Directory is not exist'))
     }
 
-    let newHtml = await fetchForImages(fetch, filesDir, dir, file)
+    let newHtml = await fetchForImages(fetch, filesDir, dir, file, pagePath)
 
     newHtml = await fetchForScripts(newHtml, filesDir, dir)
 
