@@ -50,13 +50,15 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
 
                 fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
 
-                return fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
-                    .then(() => axios.get(src, { responseType: 'binary' }))
+                fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
+
+                return axios.get(src, { responseType: 'binary' })
                     .then((img) => {
                         const imgData = img.data ?? img
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
                     .catch((error) => {
+                        console.log('error', error)
                         log('fetchForImages write error', error)
                         return Promise.reject(new Error('fetchForImages write error', error))
                     })
