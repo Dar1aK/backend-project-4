@@ -58,7 +58,6 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
                     .catch((error) => {
-                        console.log('error', error)
                         log('fetchForImages write error', error)
                         return Promise.reject(new Error('fetchForImages write error', error))
                     })
