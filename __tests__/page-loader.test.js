@@ -25,6 +25,8 @@ describe('pageLoader', () => {
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' }))
     .get('/courses/assets/nodejs.png')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
+    .get('/photos/react.png')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/react.png'), { encoding: 'binary' }))
     .get('/11111')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')))
 
@@ -46,7 +48,21 @@ describe('pageLoader', () => {
     const $HTML = load(HTML);
 
     const images = $('img').map((_, {attribs}) => attribs.src)
-    const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src).filter((_, imgSrc) => imgSrc.startsWith(currFolder))
+    const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src)
+
+    expect(images.length).toEqual(imagesInLocalFolder.length);
+  });
+
+  test('check pageLoader with img with relative path', async () => {
+    const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
+
+    const HTML = await pageLoader('https://ru.hexlet.io/courses')
+
+    const $ = load(result);
+    const $HTML = load(HTML);
+
+    const images = $('img').map((_, {attribs}) => attribs.src)
+    const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src)
 
     expect(images.length).toEqual(imagesInLocalFolder.length);
   });

@@ -27,7 +27,7 @@ const tasksScripts = new Listr([
 	},
 ]);
 
-const fetchForImages = (fetch, imagesDir, dir, file) => {
+const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
     return fetch
         .then(result => {
             const html = result.data ?? result
@@ -37,7 +37,8 @@ const fetchForImages = (fetch, imagesDir, dir, file) => {
 
             const $ = load(html);
             const images = $('img').map((_, { attribs }) => attribs.src)
-            images?.length ? images.map((_, src) => {
+            images?.length ? images.map((_, srcPath) => {
+                const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
                 tasksImg.run({
                     src
@@ -114,6 +115,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const fetch = axios.get(pagePath)
     const file = pagePath.replace(/\W+/g, '-')
     const filesDir = `${file}_files`
+    const origin = (new URL(pagePath)).origin
 
     try {
         await fsp.access(dir)
@@ -121,7 +123,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
         return Promise.reject(new Error('Directory is not exist'))
     }
 
-    let newHtml = await fetchForImages(fetch, filesDir, dir, file)
+    let newHtml = await fetchForImages(fetch, filesDir, dir, file, origin)
 
     newHtml = await fetchForScripts(newHtml, filesDir, dir)
 
