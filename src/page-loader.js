@@ -105,7 +105,6 @@ const fetchForScripts = (html, filesDir, dir) => {
             .catch((error) => {
                 debug('fetchForScripts error', error)
                 return Promise.reject(new Error(`fetchForScripts error ${error}`))
-
             });
     })
     return newHtml
