@@ -40,7 +40,6 @@ describe('pageLoader', () => {
 
   test('check pageLoader with img', async () => {
     const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
-    const currFolder = process.cwd()
 
     const HTML = await pageLoader('https://ru.hexlet.io/courses')
 
@@ -51,6 +50,27 @@ describe('pageLoader', () => {
     const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src)
 
     expect(images.length).toEqual(imagesInLocalFolder.length);
+  });
+
+  test('check pageLoader with img and check files exist', async () => {
+    const url = 'https://ru.hexlet.io/courses'
+    const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
+
+    const origin = (new URL(url)).origin
+    const currFolder = process.cwd()
+
+    const $ = load(result);
+    const images = $('img').map((_, {attribs}) => attribs.src)
+
+    const imgResult = images.map(async (_, srcPath) => {
+      try {
+        const src = `${currFolder}/${url.replace(/\W+/g, '-')}_files/${(srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath).replace(/\W+/g, '-')}`
+        const extension = srcPath.split('.')
+        return await fsp.access(`${src}.${extension[extension.length - 1]}`)
+      } catch {
+        return process.exit()
+      }
+    });
   });
 
   test('check pageLoader with img with relative path', async () => {
