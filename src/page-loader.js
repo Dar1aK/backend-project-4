@@ -71,7 +71,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
         });
 }
 
-const fetchForScripts = (html, filesDir, dir, file) => {
+const fetchForScripts = (html, filesDir, dir, file, origin) => {
     if (!html) {
         log('fetchForScripts error')
         console.error('fetchForScripts error')
@@ -86,7 +86,9 @@ const fetchForScripts = (html, filesDir, dir, file) => {
         return attribs.href.endsWith('.css') ? attribs.href : null
     }).filter(item => item)
     const scripts = $('script').map((_, { attribs }) => attribs.src)
-    const requests = [...links, ...scripts].forEach((src) => {
+    const requests = [...links, ...scripts].forEach((srcPath) => {
+
+        const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
         tasksScripts.run({
             src
@@ -95,13 +97,11 @@ const fetchForScripts = (html, filesDir, dir, file) => {
         const srcName = src.replace(/\W+/g, '-')
         const extension = src.split('.')
 
-        newHtml = newHtml.replace(src, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
-
-        console.log('newHtml', newHtml, 1)
-
+        newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
 
         fsp.mkdir(path.join(dir, filesDir), { recursive: true })
-            .then(async () =>  src.startsWith('http') ? await axios.get(src, { responseType: 'binary' }) : await fsp.readFile(path.join(dir, src)))
+
+        axios.get(src, { responseType: 'binary' })
             .then(async (file) => {
                 const fileData = file.data ?? file
                 return await fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), fileData, "binary")
@@ -110,8 +110,10 @@ const fetchForScripts = (html, filesDir, dir, file) => {
                 debug('fetchForScripts error', error)
                 return Promise.reject(new Error(`fetchForScripts error ${error}`))
             });
+
+            fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+
     })
-    fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
     return `${dir}/${file}.html`
 }
 
@@ -129,7 +131,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
     const newHtml = await fetchForImages(fetch, filesDir, dir, file, origin)
 
-    const htmlPath = await fetchForScripts(newHtml, filesDir, dir, file)
+    const htmlPath = await fetchForScripts(newHtml, filesDir, dir, file, origin)
 
     return htmlPath;
 }

@@ -27,18 +27,18 @@ describe('pageLoader', () => {
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/nodejs.png'), { encoding: 'binary' }))
     .get('/photos/react.png')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/react.png'), { encoding: 'binary' }))
+    .get('/courses/assets/application.css')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/application.css'), { encoding: 'binary' }))
+    .get('/assets/menu.css')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/menu.css'), { encoding: 'binary' }))
+    .get('/courses/assets/scripts.js')
+    .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/scripts.js'), { encoding: 'binary' }))
     .get('/11111')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')))
 
   })
 
   test('run pageLoader', async () => {
-      const result = await pageLoader('https://ru.hexlet.io/courses')
-
-    expect(result).not.toEqual(undefined);
-  });
-
-  test('check pageLoader with img', async () => {
     const htmlPath = await pageLoader('https://ru.hexlet.io/courses')
 
     const fileResult = await fsp.readFile(path.resolve(htmlPath), { encoding: 'utf8' });
@@ -47,61 +47,35 @@ describe('pageLoader', () => {
     expect(fileResult).toEqual(fixture);
   });
 
-  // test('check pageLoader with img and check files exist', async () => {
-  //   const url = 'https://ru.hexlet.io/courses'
-  //   const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
+  test('check pageLoader with img', async () => {
+    const htmlPath = await pageLoader('https://ru.hexlet.io/courses')
 
-  //   const origin = (new URL(url)).origin
-  //   const currFolder = process.cwd()
+    const fileResult = await fsp.readFile(path.resolve(htmlPath), { encoding: 'utf8' });
 
-  //   const $ = load(result);
-  //   const images = $('img').map((_, {attribs}) => attribs.src)
+    const img1 = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-nodejs-png.png"
+    const img2 = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-photos-react-png.png"
 
-  //   const imgResult = images.map(async (_, srcPath) => {
-  //     try {
-  //       const src = `${currFolder}/${url.replace(/\W+/g, '-')}_files/${(srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath).replace(/\W+/g, '-')}`
-  //       const extension = srcPath.split('.')
-  //       return await fsp.access(`${src}.${extension[extension.length - 1]}`)
-  //     } catch {
-  //       return process.exit()
-  //     }
-  //   });
-  // });
+    expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
+    expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
+  });
 
-  // test('check pageLoader with img with relative path', async () => {
-  //   const result = await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/index.html'), { encoding: 'utf8' });
+  test('check pageLoader with css link', async () => {
+    const htmlPath = await pageLoader('https://ru.hexlet.io/courses')
 
-  //   const HTML = await pageLoader('https://ru.hexlet.io/courses')
+    const fileResult = await fsp.readFile(path.resolve(htmlPath), { encoding: 'utf8' });
 
-  //   const $ = load(result);
-  //   const $HTML = load(HTML);
+    const css = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-application-css.css"
+    const js = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-scripts-js.js"
 
-  //   const images = $('img').map((_, {attribs}) => attribs.src)
-  //   const imagesInLocalFolder = $HTML('img').map((_, {attribs}) => attribs.src)
+    expect(fileResult.indexOf(css)).toBeGreaterThanOrEqual(0);
+    expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
+  });
 
-  //   expect(images.length).toEqual(imagesInLocalFolder.length);
-  // });
+  test('check pageLoader with error link', async () => {
+    expect(async () => await pageLoader('https://ru.hexlet.io/11111')).rejects.toThrow()
+  });
 
-
-  // test('check pageLoader with css link', async () => {
-  //   const currFolder = process.cwd()
-
-  //   const HTML = await pageLoader('https://ru.hexlet.io/courses')
-
-  //   const $HTML = load(HTML);
-
-  //   const styles = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith('https://ru.hexlet.io'))
-  //   expect(styles.length).toEqual(0);
-
-  //   const stylesLocal = $HTML('link').map((_, {attribs}) => attribs.href).filter((_, href) => href.startsWith(currFolder))
-  //   expect(stylesLocal.length).toEqual(1);
-  // });
-
-  // test('check pageLoader with error link', async () => {
-  //   expect(async () => await pageLoader('https://ru.hexlet.io/11111')).rejects.toThrow()
-  // });
-
-  // test('run pageLoader with not existing directory', async () => {
-  //   expect(async () => await pageLoader('https://ru.hexlet.io/courses', '/not-exist')).rejects.toThrow()
-  // });
+  test('run pageLoader with not existing directory', async () => {
+    expect(async () => await pageLoader('https://ru.hexlet.io/courses', '/not-exist')).rejects.toThrow()
+  });
 });
