@@ -72,7 +72,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
 const fetchForScripts = (html, filesDir, dir, file, origin) => {
     if (!html) {
         log('fetchForScripts error')
-        return
+        return Promise.reject(new Error('fetchForScripts error'))
     }
     let newHtml = html
 
