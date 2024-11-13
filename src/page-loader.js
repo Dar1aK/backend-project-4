@@ -112,7 +112,7 @@ const fetchForScripts = (html, filesDir, dir, file) => {
             });
     })
     fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-    return newHtml
+    return `${dir}/${file}.html`
 }
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
@@ -127,11 +127,10 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
         return Promise.reject(new Error('Directory is not exist'))
     }
 
-    let newHtml = await fetchForImages(fetch, filesDir, dir, file, origin)
+    const newHtml = await fetchForImages(fetch, filesDir, dir, file, origin)
 
-    newHtml = await fetchForScripts(newHtml, filesDir, dir, file)
-    console.log('newHtml', newHtml, 2)
+    const htmlPath = await fetchForScripts(newHtml, filesDir, dir, file)
 
-    return newHtml;
+    return htmlPath;
 }
 export default pageLoader;
