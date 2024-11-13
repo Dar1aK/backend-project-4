@@ -67,6 +67,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
         })
         .catch((error) => {
             log('fetchForImages error', error)
+            return Promise.reject(new Error('read html file error'))
         });
 }
 
@@ -120,7 +121,6 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const filesDir = `${file}_files`
     const origin = (new URL(pagePath)).origin
 
-    console.log('dir', dir)
     try {
         await fsp.access(dir, fsp.constants.W_OK)
     } catch {
