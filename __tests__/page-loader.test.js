@@ -47,26 +47,18 @@ describe('pageLoader', () => {
     expect(fileResult).toEqual(fixture);
   });
 
-  test('check pageLoader with img', async () => {
+  test('check pageLoader with sources', async () => {
     const htmlPath = await pageLoader('https://ru.hexlet.io/courses')
 
     const fileResult = await fsp.readFile(path.resolve(htmlPath), { encoding: 'utf8' });
 
     const img1 = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-nodejs-png.png"
     const img2 = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-photos-react-png.png"
-
-    expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
-    expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
-  });
-
-  test('check pageLoader with css link', async () => {
-    const htmlPath = await pageLoader('https://ru.hexlet.io/courses')
-
-    const fileResult = await fsp.readFile(path.resolve(htmlPath), { encoding: 'utf8' });
-
     const css = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-application-css.css"
     const js = "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-scripts-js.js"
 
+    expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
+    expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(css)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
   });

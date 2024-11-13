@@ -59,7 +59,6 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
                     })
                     .catch((error) => {
                         log('fetchForImages write error', error)
-                        return Promise.reject(new Error('fetchForImages write error', error))
                     })
                 return newHtml
             }) : fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
@@ -67,15 +66,13 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
         })
         .catch((error) => {
             log('fetchForImages error', error)
-            return Promise.reject(new Error('fetchForImages error', error))
         });
 }
 
 const fetchForScripts = (html, filesDir, dir, file, origin) => {
     if (!html) {
         log('fetchForScripts error')
-        console.error('fetchForScripts error')
-        return Promise.reject(new Error('fetchForScripts error'))
+        return
     }
     let newHtml = html
 
@@ -108,7 +105,6 @@ const fetchForScripts = (html, filesDir, dir, file, origin) => {
             })
             .catch((error) => {
                 debug('fetchForScripts error', error)
-                return Promise.reject(new Error(`fetchForScripts error ${error}`))
             });
 
             fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
