@@ -49,6 +49,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
                 newHtml = newHtml.replace(srcPath, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
 
                 fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+                    .catch(() => Promise.reject(new Error('write html file error')))
 
                 fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
 
@@ -119,8 +120,9 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     const filesDir = `${file}_files`
     const origin = (new URL(pagePath)).origin
 
+    console.log('dir', dir)
     try {
-        await fsp.access(dir)
+        await fsp.access(dir, fsp.constants.W_OK)
     } catch {
         return Promise.reject(new Error('Directory is not exist'))
     }
