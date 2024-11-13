@@ -46,13 +46,13 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
 
                 const srcName = src.replace(/\W+/g, '-')
                 const extension = src.split('.')
-                newHtml = newHtml.replace(src, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
+                newHtml = newHtml.replace(srcPath, path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`))
 
                 fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
 
                 fsp.mkdir(path.join(dir, imagesDir), { recursive: true })
 
-                return axios.get(src, { responseType: 'binary' })
+                axios.get(src, { responseType: 'binary' })
                     .then((img) => {
                         const imgData = img.data ?? img
                         return fsp.writeFile(path.join(dir, imagesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
@@ -61,6 +61,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
                         log('fetchForImages write error', error)
                         return Promise.reject(new Error('fetchForImages write error', error))
                     })
+                return newHtml
             }) : fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
             return newHtml
         })
@@ -70,7 +71,7 @@ const fetchForImages = (fetch, imagesDir, dir, file, origin) => {
         });
 }
 
-const fetchForScripts = (html, filesDir, dir) => {
+const fetchForScripts = (html, filesDir, dir, file) => {
     if (!html) {
         log('fetchForScripts error')
         console.error('fetchForScripts error')
@@ -96,6 +97,9 @@ const fetchForScripts = (html, filesDir, dir) => {
 
         newHtml = newHtml.replace(src, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
 
+        console.log('newHtml', newHtml, 1)
+
+
         fsp.mkdir(path.join(dir, filesDir), { recursive: true })
             .then(async () =>  src.startsWith('http') ? await axios.get(src, { responseType: 'binary' }) : await fsp.readFile(path.join(dir, src)))
             .then(async (file) => {
@@ -107,6 +111,7 @@ const fetchForScripts = (html, filesDir, dir) => {
                 return Promise.reject(new Error(`fetchForScripts error ${error}`))
             });
     })
+    fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
     return newHtml
 }
 
@@ -124,7 +129,8 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
     let newHtml = await fetchForImages(fetch, filesDir, dir, file, origin)
 
-    newHtml = await fetchForScripts(newHtml, filesDir, dir)
+    newHtml = await fetchForScripts(newHtml, filesDir, dir, file)
+    console.log('newHtml', newHtml, 2)
 
     return newHtml;
 }
