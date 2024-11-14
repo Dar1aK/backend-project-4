@@ -70,13 +70,15 @@ const fetchForImages = (pagePath, dir) => {
             })
 
             fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-                .catch(() => Promise.reject(new Error('write html file error')))
+                .catch(() => {
+                    throw Error('write html file error')
+                })
 
             return `${dir}/${file}.html`
         })
         .catch((error) => {
             log('fetchForImages error', error)
-            return Promise.reject(new Error('read html file error'))
+            throw Error('read html file error')
         });
 }
 
@@ -85,11 +87,9 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     try {
         await fsp.access(dir, fsp.constants.W_OK)
     } catch {
-        return Promise.reject(new Error('Directory is not exist'))
+        throw Error('Directory is not exist')
     }
 
-    const htmlPath = await fetchForImages(pagePath, dir)
-
-    return htmlPath;
+    return fetchForImages(pagePath, dir)
 }
 export default pageLoader;
