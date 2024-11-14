@@ -38,7 +38,7 @@ const loadSources = (pagePath, dir) => {
 
             fsp.mkdir(path.join(dir, filesDir), { recursive: true })
 
-            const resultFiles = [...images, ...links, ...scripts].map((srcPath) => {
+            const resultFiles = [...images, ...links, ...scripts].forEach((srcPath) => {
                 const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
                 tasks.run({
@@ -54,22 +54,15 @@ const loadSources = (pagePath, dir) => {
                         const imgData = img.data ?? img
                         return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
-                    .catch((error) => {
-                        log('loadSources write error', error)
-                    })
-                return newHtml
             })
 
             fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-                .catch(() => {
-                    throw Error('write html file error')
-                })
 
             return `${dir}/${file}.html`
         })
         .catch((error) => {
             log('loadSources error', error)
-            throw Error('read html file error')
+            throw Error('loadSources error')
         });
 }
 
