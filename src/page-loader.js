@@ -45,6 +45,9 @@ const fetchForImages = (pagePath, dir) => {
                 return attribs.href.endsWith('.css') ? attribs.href : null
             }).filter(item => item)
             const scripts = $('script').map((_, { attribs }) => attribs.src)
+
+            fsp.mkdir(path.join(dir, filesDir), { recursive: true })
+
             const resultFiles = [...images, ...links, ...scripts].map((srcPath) => {
                 const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
@@ -55,8 +58,6 @@ const fetchForImages = (pagePath, dir) => {
                 const srcName = src.replace(/\W+/g, '-')
                 const extension = src.split('.')
                 newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
-
-                fsp.mkdir(path.join(dir, filesDir), { recursive: true })
 
                 axios.get(src, { responseType: 'binary' })
                     .then((img) => {
