@@ -17,7 +17,7 @@ const tasks = new Listr([
 	},
 ]);
 
-const fetchForImages = (pagePath, dir) => {
+const loadSources = (pagePath, dir) => {
     return axios.get(pagePath)
         .then(result => {
             const html = result.data ?? result
@@ -55,7 +55,7 @@ const fetchForImages = (pagePath, dir) => {
                         return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
                     })
                     .catch((error) => {
-                        log('fetchForImages write error', error)
+                        log('loadSources write error', error)
                     })
                 return newHtml
             })
@@ -68,7 +68,7 @@ const fetchForImages = (pagePath, dir) => {
             return `${dir}/${file}.html`
         })
         .catch((error) => {
-            log('fetchForImages error', error)
+            log('loadSources error', error)
             throw Error('read html file error')
         });
 }
@@ -81,6 +81,6 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
         throw Error('Directory is not exist')
     }
 
-    return fetchForImages(pagePath, dir)
+    return loadSources(pagePath, dir)
 }
 export default pageLoader;
