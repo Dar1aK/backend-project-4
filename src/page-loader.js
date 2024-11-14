@@ -7,21 +7,11 @@ import Listr from 'listr';
 
 const log = debug('page-loader');
 
-const tasksImg = new Listr([
+const tasks = new Listr([
 	{
-		title: 'Images',
+		title: 'Sources',
 		task: (ctx) => {
-            console.log(`images: ${ctx.src}`)
-            return Promise.resolve(ctx.src)
-        }
-	},
-]);
-
-const tasksScripts = new Listr([
-	{
-		title: 'Scripts',
-		task: (ctx) => {
-            console.log(`Scripts: ${ctx.src}`)
+            console.log(`source: ${ctx.src}`)
             return Promise.resolve(ctx.src)
         }
 	},
@@ -51,7 +41,7 @@ const fetchForImages = (pagePath, dir) => {
             const resultFiles = [...images, ...links, ...scripts].map((srcPath) => {
                 const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
-                tasksImg.run({
+                tasks.run({
                     src
                 })
 
