@@ -18,7 +18,14 @@ const loadSources = (pagePath, dir) => {
         },
     ]);
 
-    return fsp.access(dir, fsp.constants.W_OK)
+    const writeSource = (src, srcName, extension, filesDir) => {
+        return axios.get(src, { responseType: 'binary' })
+        .then((source) => {
+            return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), source.data, "binary")
+        })
+    }
+
+    return fsp.access(dir)
         .then(() => axios.get(pagePath))
         .then(result => {
             const html = result.data ?? result
@@ -50,13 +57,12 @@ const loadSources = (pagePath, dir) => {
                     const extension = src.split('.')
                     newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
 
-                    axios.get(src, { responseType: 'binary' })
-                        .then((img) => {
-                            const imgData = img.data ?? img
-                            return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
-                        })
+                    writeSource(src, srcName, extension, filesDir)
                 }))
-                .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
+                .then(() => {
+                    console.log('newHtml', newHtml)
+                    return fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+                })
                 .then(() => `${dir}/${file}.html`)
         })
         .catch((error) => {
