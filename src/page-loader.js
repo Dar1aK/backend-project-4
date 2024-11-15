@@ -59,10 +59,7 @@ const loadSources = (pagePath, dir) => {
 
                     writeSource(src, srcName, extension, filesDir)
                 }))
-                .then(() => {
-                    console.log('newHtml', newHtml)
-                    return fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
-                })
+                .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
                 .then(() => `${dir}/${file}.html`)
         })
         .catch((error) => {
