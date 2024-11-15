@@ -7,18 +7,19 @@ import Listr from 'listr';
 
 const log = debug('page-loader');
 
-const tasks = new Listr([
-	{
-		title: 'Sources',
-		task: (ctx) => {
-            console.log(`source: ${ctx.src}`)
-            return Promise.resolve(ctx.src)
-        }
-	},
-]);
-
 const loadSources = (pagePath, dir) => {
-    return axios.get(pagePath)
+    const tasks = new Listr([
+        {
+            title: 'Sources',
+            task: (ctx) => {
+                console.log(`source: ${ctx.src}`)
+                return ctx.src
+            }
+        },
+    ]);
+
+    return fsp.access(dir, fsp.constants.W_OK)
+        .then(() => axios.get(pagePath))
         .then(result => {
             const html = result.data ?? result
             let newHtml = html
@@ -36,29 +37,27 @@ const loadSources = (pagePath, dir) => {
             }).filter(item => item)
             const scripts = $('script').map((_, { attribs }) => attribs.src)
 
-            fsp.mkdir(path.join(dir, filesDir), { recursive: true })
+            return Promise.resolve()
+                .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
+                .then(() => [...images, ...links, ...scripts].forEach((srcPath) => {
+                    const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
-            const resultFiles = [...images, ...links, ...scripts].forEach((srcPath) => {
-                const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
-
-                tasks.run({
-                    src
-                })
-
-                const srcName = src.replace(/\W+/g, '-')
-                const extension = src.split('.')
-                newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
-
-                axios.get(src, { responseType: 'binary' })
-                    .then((img) => {
-                        const imgData = img.data ?? img
-                        return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
+                    tasks.run({
+                        src
                     })
-            })
 
-            fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+                    const srcName = src.replace(/\W+/g, '-')
+                    const extension = src.split('.')
+                    newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
 
-            return `${dir}/${file}.html`
+                    axios.get(src, { responseType: 'binary' })
+                        .then((img) => {
+                            const imgData = img.data ?? img
+                            return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), imgData, "binary")
+                        })
+                }))
+                .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
+                .then(() => `${dir}/${file}.html`)
         })
         .catch((error) => {
             log('loadSources error', error)
@@ -67,13 +66,7 @@ const loadSources = (pagePath, dir) => {
 }
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
-
-    try {
-        await fsp.access(dir, fsp.constants.W_OK)
-    } catch {
-        throw Error('Directory is not exist')
-    }
-
     return loadSources(pagePath, dir)
 }
+
 export default pageLoader;
