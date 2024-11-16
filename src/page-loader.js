@@ -7,7 +7,7 @@ import Listr from 'listr';
 
 const log = debug('page-loader');
 
-const loadSources = (pagePath, dir) => {
+const loadPage = (pagePath, dir) => {
     const tasks = new Listr([
         {
             title: 'Sources',
@@ -73,7 +73,7 @@ const loadSources = (pagePath, dir) => {
 }
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
-    return loadSources(pagePath, dir)
+    return loadPage(pagePath, dir)
 }
 
 export default pageLoader;

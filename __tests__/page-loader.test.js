@@ -35,6 +35,9 @@ describe('pageLoader', () => {
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/courses/assets/scripts.js'), { encoding: 'binary' }))
     .get('/11111')
     .reply(200, async () => await fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')))
+    .get('/courses/assets/not-exist.css')
+    .reply(404)
+
 
   })
 
