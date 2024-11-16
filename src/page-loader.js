@@ -36,35 +36,39 @@ const loadPage = (pagePath, dir) => {
         .catch((error) => log('loadSources error', error))
     }
 
+    const getAndSaveSources = (html) => {
+        const file = pagePath.replace(/\W+/g, '-')
+        const filesDir = `${file}_files`
+        const origin = (new URL(pagePath)).origin
+        let newHtml = html
+
+        return Promise.resolve()
+        .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
+        .then(() => getSouces(html).forEach((srcPath) => {
+            const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
+
+            tasks.run({
+                src
+            })
+
+            const srcName = src.replace(/\W+/g, '-')
+            const extension = src.split('.')
+            newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
+
+            writeSource(src, srcName, extension, filesDir)
+        }))
+        .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
+        .then(() => `${dir}/${file}.html`)
+    }
+
     return fsp.access(dir)
         .then(() => axios.get(pagePath))
         .then(result => {
             const html = result.data
-            let newHtml = html
 
-            log('start', newHtml)
+            log('start', html)
 
-            const file = pagePath.replace(/\W+/g, '-')
-            const filesDir = `${file}_files`
-            const origin = (new URL(pagePath)).origin
-
-            return Promise.resolve()
-                .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
-                .then(() => getSouces(html).forEach((srcPath) => {
-                    const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
-
-                    tasks.run({
-                        src
-                    })
-
-                    const srcName = src.replace(/\W+/g, '-')
-                    const extension = src.split('.')
-                    newHtml = newHtml.replace(srcPath, path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`))
-
-                    writeSource(src, srcName, extension, filesDir)
-                }))
-                .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
-                .then(() => `${dir}/${file}.html`)
+            return getAndSaveSources(html)
         })
         .catch((error) => {
             log('load page error', error)
