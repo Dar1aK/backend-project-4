@@ -18,17 +18,28 @@ const loadSources = (pagePath, dir) => {
         },
     ]);
 
+    const getSouces = (html) => {
+        const $ = load(html);
+        const images = $('img').map((_, { attribs }) => attribs.src)
+        const links = $('link').map((_, { attribs }) => {
+            return attribs.href.endsWith('.css') ? attribs.href : null
+        }).filter(item => item)
+        const scripts = $('script').map((_, { attribs }) => attribs.src)
+        return [...images, ...links, ...scripts]
+    }
+
     const writeSource = (src, srcName, extension, filesDir) => {
         return axios.get(src, { responseType: 'binary' })
         .then((source) => {
             return fsp.writeFile(path.join(dir, filesDir, `${srcName}.${extension[extension.length - 1]}`), source.data, "binary")
         })
+        .catch((error) => log('loadSources error', error))
     }
 
     return fsp.access(dir)
         .then(() => axios.get(pagePath))
         .then(result => {
-            const html = result.data ?? result
+            const html = result.data
             let newHtml = html
 
             log('start', newHtml)
@@ -37,16 +48,9 @@ const loadSources = (pagePath, dir) => {
             const filesDir = `${file}_files`
             const origin = (new URL(pagePath)).origin
 
-            const $ = load(html);
-            const images = $('img').map((_, { attribs }) => attribs.src)
-            const links = $('link').map((_, { attribs }) => {
-                return attribs.href.endsWith('.css') ? attribs.href : null
-            }).filter(item => item)
-            const scripts = $('script').map((_, { attribs }) => attribs.src)
-
             return Promise.resolve()
                 .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
-                .then(() => [...images, ...links, ...scripts].forEach((srcPath) => {
+                .then(() => getSouces(html).forEach((srcPath) => {
                     const src = srcPath.startsWith('/') ? `${origin}${srcPath}` : srcPath
 
                     tasks.run({
@@ -63,8 +67,8 @@ const loadSources = (pagePath, dir) => {
                 .then(() => `${dir}/${file}.html`)
         })
         .catch((error) => {
-            log('loadSources error', error)
-            throw Error('loadSources error')
+            log('load page error', error)
+            throw Error('load page error')
         });
 }
 
