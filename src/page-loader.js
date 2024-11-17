@@ -8,15 +8,7 @@ import Listr from "listr";
 const log = debug("page-loader");
 
 const loadPage = (pagePath, dir) => {
-  const tasks = new Listr([
-    {
-      title: "Sources",
-      task: (ctx) => {
-        console.log(`source: ${ctx.source}`);
-        return ctx.source;
-      },
-    },
-  ]);
+  const tasks = (listrTasks) => new Listr(listrTasks);
 
   const getSouces = (html) => {
     const $ = load(html);
@@ -32,10 +24,11 @@ const loadPage = (pagePath, dir) => {
 
   const writeSource = (src, srcName, extension, filesDir) => {
     const promise =  new Promise((resolve) => {
-      return resolve(axios.get(src, { responseType: "binary" }))
+      return resolve(src)
     });
 
     return promise
+    .then(() => axios.get(src, { responseType: "binary" }))
     .then((source) =>
       fsp.writeFile(
         path.join(
@@ -59,28 +52,34 @@ const loadPage = (pagePath, dir) => {
     return fsp
       .mkdir(path.join(dir, filesDir), { recursive: true })
       .then(() => {
-        tasks.run({
-            source: getSouces(html).forEach((srcPath) => {
-                const src = srcPath.startsWith("/")
-                  ? `${origin}${srcPath}`
-                  : srcPath;
+        const listrTasks = getSouces(html).map((srcPath) => {
+          const src = srcPath.startsWith("/")
+            ? `${origin}${srcPath}`
+            : srcPath;
 
-                const srcName = src.replace(/\W+/g, "-");
-                const extension = src.split(".");
-                newHtml = newHtml.replace(
-                  srcPath,
-                  path.join(
-                    dir,
-                    filesDir,
-                    `${srcName}.${extension[extension.length - 1]}`,
-                  ),
-                );
+          const srcName = src.replace(/\W+/g, "-");
+          const extension = src.split(".");
+          newHtml = newHtml.replace(
+            srcPath,
+            path.join(
+              dir,
+              filesDir,
+              `${srcName}.${extension[extension.length - 1]}`,
+            ),
+          );
 
-                return writeSource(src, srcName, extension, filesDir);
-              }),
-          })
+          return {
+            title: src,
+            task: () => writeSource(src, srcName, extension, filesDir)
+          };
+        })
+
+
+        return tasks(listrTasks).run()
       })
-      .then(() => fsp.writeFile(path.join(dir, `${file}.html`), newHtml))
+      .then(() => {
+        return fsp.writeFile(path.join(dir, `${file}.html`), newHtml)
+      })
       .then(() => `${dir}/${file}.html`);
   };
 
@@ -96,6 +95,7 @@ const loadPage = (pagePath, dir) => {
     })
     .catch((error) => {
       log("load page error", error);
+      // console.log('err', error)
       throw Error("load page error");
     });
 };
