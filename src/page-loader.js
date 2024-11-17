@@ -31,20 +31,23 @@ const loadPage = (pagePath, dir) => {
   };
 
   const writeSource = (src, srcName, extension, filesDir) => {
-    return axios
-      .get(src, { responseType: "binary" })
-      .then((source) =>
-        fsp.writeFile(
-          path.join(
-            dir,
-            filesDir,
-            `${srcName}.${extension[extension.length - 1]}`,
-          ),
-          source.data,
-          "binary",
-        )
+    const promise =  new Promise((resolve) => {
+      return resolve(axios.get(src, { responseType: "binary" }))
+    });
+
+    return promise
+    .then((source) =>
+      fsp.writeFile(
+        path.join(
+          dir,
+          filesDir,
+          `${srcName}.${extension[extension.length - 1]}`,
+        ),
+        source.data,
+        "binary",
       )
-      .catch((error) => log("loadSources error", error));
+    )
+    .catch((error) => log("loadSources error", error));
   };
 
   const getAndSaveSources = (html) => {
