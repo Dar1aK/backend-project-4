@@ -7,10 +7,15 @@ import Listr from "listr";
 
 const log = debug("page-loader");
 
-const loadPage = (pagePath, dir) => {
+const pageLoader = async (pagePath, dir = process.cwd()) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
 
-  const getSouces = (html) => {
+  const fileName = (src) => {
+    const srcName = src.replace(/\W+/g, "-");
+    return `${srcName}${path.parse(src).ext}`
+  }
+
+  const getSources = (html) => {
     const $ = load(html);
     const images = $("img").map((_, { attribs }) => attribs.src);
     const links = $("link")
@@ -22,19 +27,14 @@ const loadPage = (pagePath, dir) => {
     return [...images, ...links, ...scripts];
   };
 
-  const writeSource = (src, srcName, extension, filesDir) => {
-    const promise =  new Promise((resolve) => {
-      return resolve(src)
-    });
-
-    return promise
-    .then(() => axios.get(src, { responseType: "binary" }))
+  const writeSource = (src, filesDir) => {
+    return axios.get(src, { responseType: "binary" })
     .then((source) =>
       fsp.writeFile(
         path.join(
           dir,
           filesDir,
-          `${srcName}.${extension[extension.length - 1]}`,
+          fileName(src),
         ),
         source.data,
         "binary",
@@ -52,28 +52,25 @@ const loadPage = (pagePath, dir) => {
     return fsp
       .mkdir(path.join(dir, filesDir), { recursive: true })
       .then(() => {
-        const listrTasks = getSouces(html).map((srcPath) => {
+        const listrTasks = getSources(html).map((srcPath) => {
           const src = srcPath.startsWith("/")
             ? `${origin}${srcPath}`
             : srcPath;
 
-          const srcName = src.replace(/\W+/g, "-");
-          const extension = src.split(".");
           newHtml = newHtml.replace(
             srcPath,
             path.join(
               dir,
               filesDir,
-              `${srcName}.${extension[extension.length - 1]}`,
+              fileName(src),
             ),
           );
 
           return {
             title: src,
-            task: () => writeSource(src, srcName, extension, filesDir)
+            task: () => writeSource(src, filesDir)
           };
         })
-
 
         return tasks(listrTasks).run()
       })
@@ -95,13 +92,8 @@ const loadPage = (pagePath, dir) => {
     })
     .catch((error) => {
       log("load page error", error);
-      // console.log('err', error)
       throw Error("load page error");
     });
-};
-
-const pageLoader = async (pagePath, dir = process.cwd()) => {
-  return loadPage(pagePath, dir);
 };
 
 export default pageLoader;
