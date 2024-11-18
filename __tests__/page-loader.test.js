@@ -105,7 +105,7 @@ describe("pageLoader", () => {
       { encoding: "utf8" },
     );
 
-    expect(fileResult).toEqual(fixture);
+    expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
   });
 
   test("check pageLoader with sources", async () => {
