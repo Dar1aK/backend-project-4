@@ -52,15 +52,11 @@ const getSources = ($, dir, pagePath, filesDir) => {
   return [...images, ...links, ...scripts]
 };
 
-const writeSource = (src, pagePath, filesDir) => {
+const writeSource = (src, outputPath) => {
   return axios.get(src, { responseType: "binary" })
   .then((source) =>
     fsp.writeFile(
-      path.join(
-        dir,
-        filesDir,
-        fileName(src, pagePath),
-      ),
+      outputPath,
       source.data,
       "binary",
     )
@@ -81,14 +77,18 @@ const getAndSaveSources = (html, pagePath, dir) => {
     .mkdir(path.join(dir, filesDir), { recursive: true })
     .then(() => {
       const origin = new URL(pagePath).origin;
-      const listrTasks = getSources($, dir, pagePath, filesDir).map((path) => {
-        const src = path.startsWith("/")
-          ? `${origin}${path}`
-          : path;
+      const listrTasks = getSources($, dir, pagePath, filesDir).map((pathSrc) => {
+        const src = pathSrc.startsWith("/")
+          ? `${origin}${pathSrc}`
+          : pathSrc;
 
         return {
           title: src,
-          task: () => writeSource(src, pagePath, filesDir)
+          task: () => writeSource(src, path.join(
+            dir,
+            filesDir,
+            fileName(src, pagePath),
+          ))
         };
       })
 
