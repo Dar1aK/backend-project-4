@@ -7,99 +7,98 @@ import Listr from "listr";
 
 const log = debug("page-loader");
 
-const pageLoader = async (pagePath, dir = process.cwd()) => {
+const fileName = (srcPath, pagePath) => {
+  const origin = new URL(pagePath).origin;
+  const src = srcPath.startsWith("/")
+  ? `${origin}${srcPath}`
+  : srcPath;
+  const srcName = src.replace(/\W+/g, "-");
+  return `${srcName}${path.parse(src).ext}`
+}
+
+const getSources = ($, dir, pagePath, filesDir) => {
+  const images = $("img").map((_, { attribs }) => {
+    const prevAttr = attribs.src
+    $(`img[src="${attribs.src}"]`).attr('src', path.join(
+      dir,
+      filesDir,
+      fileName(attribs.src, pagePath),
+    ))
+    return prevAttr
+  });
+
+  const links = $("link")
+    .map((_, { attribs }) => {
+      const prevAttr = attribs.href
+      $(`link[href="${attribs.href}"]`).attr('href', path.join(
+        dir,
+        filesDir,
+        fileName(attribs.href, pagePath),
+      ))
+      return attribs.href.endsWith(".css") ? prevAttr : null;
+    })
+    .filter((item) => item);
+
+  const scripts = $("script").map((_, { attribs }) => {
+    const prevAttr = attribs.src
+    $(`script[src="${attribs.src}"]`).attr('src', path.join(
+      dir,
+      filesDir,
+      fileName(attribs.src, pagePath),
+    ))
+    return prevAttr
+  });
+
+  return [...images, ...links, ...scripts]
+};
+
+const writeSource = (src, pagePath, filesDir) => {
+  return axios.get(src, { responseType: "binary" })
+  .then((source) =>
+    fsp.writeFile(
+      path.join(
+        dir,
+        filesDir,
+        fileName(src, pagePath),
+      ),
+      source.data,
+      "binary",
+    )
+  )
+  .catch((error) => {
+    log("loadSources error", error)
+  });
+};
+
+const getAndSaveSources = (html, pagePath, dir) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
 
-  const origin = new URL(pagePath).origin;
+  const file = pagePath.replace(/\W+/g, "-");
+  const filesDir = `${file}_files`;
+  const $ = load(html)
 
-  const fileName = (srcPath) => {
-    const src = srcPath.startsWith("/")
-    ? `${origin}${srcPath}`
-    : srcPath;
-    const srcName = src.replace(/\W+/g, "-");
-    return `${srcName}${path.parse(src).ext}`
-  }
+  return fsp
+    .mkdir(path.join(dir, filesDir), { recursive: true })
+    .then(() => {
+      const origin = new URL(pagePath).origin;
+      const listrTasks = getSources($, dir, pagePath, filesDir).map((path) => {
+        const src = path.startsWith("/")
+          ? `${origin}${path}`
+          : path;
 
-  const getSources = ($, filesDir) => {
-    const images = $("img").map((_, { attribs }) => {
-      const prevAttr = attribs.src
-      $(`img[src="${attribs.src}"]`).attr('src', path.join(
-        dir,
-        filesDir,
-        fileName(attribs.src),
-      ))
-      return prevAttr
-    });
-
-    const links = $("link")
-      .map((_, { attribs }) => {
-        const prevAttr = attribs.href
-        $(`link[href="${attribs.href}"]`).attr('href', path.join(
-          dir,
-          filesDir,
-          fileName(attribs.href),
-        ))
-        return attribs.href.endsWith(".css") ? prevAttr : null;
+        return {
+          title: src,
+          task: () => writeSource(src, pagePath, filesDir)
+        };
       })
-      .filter((item) => item);
 
-    const scripts = $("script").map((_, { attribs }) => {
-      const prevAttr = attribs.src
-      $(`script[src="${attribs.src}"]`).attr('src', path.join(
-        dir,
-        filesDir,
-        fileName(attribs.src),
-      ))
-      return prevAttr
-    });
+      return tasks(listrTasks).run()
+    })
+    .then(() => fsp.writeFile(path.join(dir, `${file}.html`), $.html()))
+    .then(() => `${dir}/${file}.html`);
+};
 
-    return [...images, ...links, ...scripts]
-  };
-
-  const writeSource = (src, filesDir) => {
-    return axios.get(src, { responseType: "binary" })
-    .then((source) =>
-      fsp.writeFile(
-        path.join(
-          dir,
-          filesDir,
-          fileName(src),
-        ),
-        source.data,
-        "binary",
-      )
-    )
-    .catch((error) => {
-      log("loadSources error", error)
-    });
-  };
-
-  const getAndSaveSources = (html) => {
-    const file = pagePath.replace(/\W+/g, "-");
-    const filesDir = `${file}_files`;
-    const $ = load(html)
-
-    return fsp
-      .mkdir(path.join(dir, filesDir), { recursive: true })
-      .then(() => {
-        const listrTasks = getSources($, filesDir).map((path) => {
-          const src = path.startsWith("/")
-            ? `${origin}${path}`
-            : path;
-
-          return {
-            title: src,
-            task: () => writeSource(src, filesDir)
-          };
-        })
-
-        return tasks(listrTasks).run()
-      })
-      .then(() => {
-        return fsp.writeFile(path.join(dir, `${file}.html`), $.html())
-      })
-      .then(() => `${dir}/${file}.html`);
-  };
+const pageLoader = async (pagePath, dir = process.cwd()) => {
 
   return fsp
     .access(dir)
@@ -109,7 +108,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
       log("start", html);
 
-      return getAndSaveSources(html);
+      return getAndSaveSources(html, pagePath, dir);
     })
     .catch((error) => {
       log("load page error", error);
