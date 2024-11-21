@@ -116,13 +116,13 @@ describe("pageLoader", () => {
     });
 
     const img1 =
-      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-nodejs-png.png";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-nodejs.png";
     const img2 =
-      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-photos-react-png.png";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-photos-react.png";
     const css =
-      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-application-css.css";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-application.css";
     const js =
-      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-scripts-js.js";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-scripts.js";
 
     expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
