@@ -116,13 +116,13 @@ describe("pageLoader", () => {
     });
 
     const img1 =
-      "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-nodejs-png.png";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-nodejs-png.png";
     const img2 =
-      "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-photos-react-png.png";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/https-ru-hexlet-io-photos-react-png.png";
     const css =
-      "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-application-css.css";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-application-css.css";
     const js =
-      "/home/runner/work/backend-project-4/backend-project-4/https-ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-scripts-js.js";
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/https-ru-hexlet-io-courses-assets-scripts-js.js";
 
     expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
@@ -137,19 +137,9 @@ describe("pageLoader", () => {
   });
 
   test("run pageLoader with not existing directory", async () => {
-    const currFolder = process.cwd()
-
-    const htmlPath = await pageLoader("https://ru.hexlet.io/courses", `${currFolder}/not-exist`)
-
-    const fileResult = await fsp.readFile(path.resolve(htmlPath), {
-      encoding: "utf8",
-    });
-    const fixture = await fsp.readFile(
-      path.resolve(__dirname, "../__fixtures__/result/not-exist/index.html"),
-      { encoding: "utf8" },
-    );
-
-    expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
-
+    expect(
+      async () =>
+        await pageLoader("https://ru.hexlet.io/courses", "/not-exist"),
+    ).rejects.toThrow();
   });
 });

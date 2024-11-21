@@ -7,7 +7,7 @@ import Listr from "listr";
 
 const log = debug("page-loader");
 
-const fileName = (srcPath, pagePath) => {
+const getFileName = (srcPath, pagePath) => {
   const origin = new URL(pagePath).origin;
   const src = srcPath.startsWith("/")
   ? `${origin}${srcPath}`
@@ -17,39 +17,23 @@ const fileName = (srcPath, pagePath) => {
 }
 
 const getSources = ($, dir, pagePath, filesDir) => {
-  const images = $("img").map((_, { attribs }) => {
-    const prevAttr = attribs.src
-    $(`img[src="${attribs.src}"]`).attr('src', path.join(
-      dir,
-      filesDir,
-      fileName(attribs.src, pagePath),
-    ))
-    return prevAttr
-  });
+  const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
 
-  const links = $("link")
-    .map((_, { attribs }) => {
-      const prevAttr = attribs.href
-      $(`link[href="${attribs.href}"]`).attr('href', path.join(
+  return sources.reduce((acc, {tag, attr}) => {
+    const value = $(tag).map((_, { attribs }) => {
+      const prevAttr = attribs[attr]
+      prevAttr && $(`${tag}[${attr}="${prevAttr}"]`).attr(attr, path.join(
         dir,
         filesDir,
-        fileName(attribs.href, pagePath),
+        getFileName(prevAttr, pagePath),
       ))
-      return attribs.href.endsWith(".css") ? prevAttr : null;
+      console.log('prevAttr', prevAttr)
+
+      return prevAttr
     })
-    .filter((item) => item);
+    return [...acc, ...value]
+  }, [])
 
-  const scripts = $("script").map((_, { attribs }) => {
-    const prevAttr = attribs.src
-    $(`script[src="${attribs.src}"]`).attr('src', path.join(
-      dir,
-      filesDir,
-      fileName(attribs.src, pagePath),
-    ))
-    return prevAttr
-  });
-
-  return [...images, ...links, ...scripts]
 };
 
 const writeSource = (src, outputPath) => {
@@ -69,7 +53,8 @@ const writeSource = (src, outputPath) => {
 const getAndSaveSources = (html, pagePath, dir) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
 
-  const file = pagePath.replace(/\W+/g, "-");
+  const file = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
+  const htmlFileName = `${file}.html`
   const filesDir = `${file}_files`;
   const $ = load(html)
 
@@ -87,22 +72,21 @@ const getAndSaveSources = (html, pagePath, dir) => {
           task: () => writeSource(src, path.join(
             dir,
             filesDir,
-            fileName(src, pagePath),
+            getFileName(src, pagePath),
           ))
         };
       })
 
       return tasks(listrTasks).run()
     })
-    .then(() => fsp.writeFile(path.join(dir, `${file}.html`), $.html()))
-    .then(() => `${dir}/${file}.html`);
+    .then(() => fsp.writeFile(path.join(dir, htmlFileName), $.html()))
+    .then(() => `${dir}/${htmlFileName}`);
 };
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
 
   return fsp
     .access(dir)
-    .catch(() => fsp.mkdir(dir, { recursive: true }))
     .then(() => axios.get(pagePath))
     .then((result) => {
       const html = result.data;
