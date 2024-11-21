@@ -40,7 +40,7 @@ const writeSource = (src, outputPath) => {
     fsp.writeFile(
       outputPath,
       source.data,
-      "binary",
+      "utf8",
     )
   )
   .catch((error) => {
