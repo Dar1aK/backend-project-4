@@ -12,7 +12,7 @@ const getFileName = (srcPath, pagePath) => {
   const src = srcPath.startsWith("/")
   ? `${origin}${srcPath}`
   : srcPath;
-  const srcName = src.replace(/\W+/g, "-");
+  const srcName = src.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
   return `${srcName}${path.parse(src).ext}`
 }
 
@@ -27,8 +27,6 @@ const getSources = ($, dir, pagePath, filesDir) => {
         filesDir,
         getFileName(prevAttr, pagePath),
       ))
-      console.log('prevAttr', prevAttr)
-
       return prevAttr
     })
     return [...acc, ...value]
@@ -53,9 +51,9 @@ const writeSource = (src, outputPath) => {
 const getAndSaveSources = (html, pagePath, dir) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
 
-  const file = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
-  const htmlFileName = `${file}.html`
-  const filesDir = `${file}_files`;
+  const filePath = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
+  const htmlFileName = `${filePath}.html`
+  const filesDir = `${filePath}_files`;
   const $ = load(html)
 
   return fsp
