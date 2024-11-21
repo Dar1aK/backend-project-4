@@ -102,6 +102,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
   return fsp
     .access(dir)
+    .catch(() => fsp.mkdir(dir, { recursive: true }))
     .then(() => axios.get(pagePath))
     .then((result) => {
       const html = result.data;
@@ -112,7 +113,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     })
     .catch((error) => {
       log("load page error", error);
-      throw Error("load page error");
+      throw Error(error);
     });
 };
 
