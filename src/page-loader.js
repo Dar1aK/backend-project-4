@@ -1,99 +1,35 @@
 import axios from "axios";
 import fsp from "fs/promises";
-import path from "path";
-import { load } from "cheerio";
 import debug from "debug";
-import Listr from "listr";
+import path from "path";
+
+
+import { getAndSaveSources } from './sources'
 
 const log = debug("page-loader");
 
-const getFileName = (srcPath, pagePath) => {
-  const origin = new URL(pagePath).origin;
-  const src = srcPath.startsWith("/")
-  ? `${origin}${srcPath}`
-  : srcPath;
-  const srcName = src.replace(/(https|http):\/\//g, '').replace(/.[a-zA-Z]*$/, '').replace(/\W+/g, "-");
-  return `${srcName}${path.parse(src).ext}`
-}
-
-const getSources = ($, dir, pagePath, filesDir) => {
-  const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
-
-  return sources.reduce((acc, {tag, attr}) => {
-    const value = $(tag).map((_, { attribs }) => {
-      const prevAttr = attribs[attr]
-      prevAttr && $(`${tag}[${attr}="${prevAttr}"]`).attr(attr, path.join(
-        dir,
-        filesDir,
-        getFileName(prevAttr, pagePath),
-      ))
-      return prevAttr
-    })
-    return [...acc, ...value]
-  }, [])
-
-};
-
-const writeSource = (src, outputPath) => {
-  const isBinary = path.parse(src).ext !== '.css' && path.parse(src).ext !== '.js'
-  return axios.get(src, isBinary ? { responseType: "binary" } : {})
-  .then((source) =>
-    fsp.writeFile(
-      outputPath,
-      source.data,
-      isBinary ? "binary" : "utf8",
-    )
-  )
-  .catch((error) => {
-    log("loadSources error", error)
-  });
-};
-
-const getAndSaveSources = (html, pagePath, dir) => {
-  const tasks = (listrTasks) => new Listr(listrTasks);
-
-  const filePath = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
-  const htmlFileName = `${filePath}.html`
-  const filesDir = `${filePath}_files`;
-  const $ = load(html)
-
-  return fsp
-    .mkdir(path.join(dir, filesDir), { recursive: true })
-    .then(() => {
-      const origin = new URL(pagePath).origin;
-      const listrTasks = getSources($, dir, pagePath, filesDir).map((pathSrc) => {
-        const src = pathSrc.startsWith("/")
-          ? `${origin}${pathSrc}`
-          : pathSrc;
-
-        return {
-          title: src,
-          task: () => writeSource(src, path.join(
-            dir,
-            filesDir,
-            getFileName(src, pagePath),
-          ))
-        };
-      })
-
-      return tasks(listrTasks).run()
-    })
-    .then(() => fsp.writeFile(path.join(dir, htmlFileName), $.html()))
-    .then(() => `${dir}/${htmlFileName}`);
-};
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
+  const filePath = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
+  const filesDir = `${filePath}_files`;
+  const htmlFileName = `${filePath}.html`
 
   return fsp
     .access(dir)
+    .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
     .then(() => axios.get(pagePath))
     .then((result) => {
       const html = result.data;
 
       log("start", html);
 
-      return getAndSaveSources(html, pagePath, dir);
+      return getAndSaveSources(html, pagePath, dir, filesDir);
     })
+    .then((html) => {
+      log("write html", html);
+      return fsp.writeFile(path.join(dir, htmlFileName), html)
+    })
+    .then(() => `${dir}/${htmlFileName}`)
     .catch((error) => {
       log("load page error", error);
       throw Error(error);
