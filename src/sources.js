@@ -23,10 +23,11 @@ const getFileName = (srcPath, pagePath) => {
     return sources.reduce((acc, {tag, attr}) => {
       const value = $(tag).map((_, { attribs }) => {
         const prevAttr = attribs[attr]
+        const srcPath = !path.parse(prevAttr).ext ? `${prevAttr}.html` : prevAttr
         prevAttr && $(`${tag}[${attr}="${prevAttr}"]`).attr(attr, path.join(
           dir,
           filesDir,
-          getFileName(prevAttr, pagePath),
+          getFileName(srcPath, pagePath),
         ))
         return prevAttr
       })
@@ -60,13 +61,14 @@ const getFileName = (srcPath, pagePath) => {
           const src = pathSrc.startsWith("/")
             ? `${origin}${pathSrc}`
             : pathSrc;
+          const srcPath = !path.parse(src).ext ? `${src}.html` : src
 
           return {
             title: src,
             task: () => writeSource(src, path.join(
               dir,
               filesDir,
-              getFileName(src, pagePath),
+              getFileName(srcPath, pagePath),
             ))
           };
         })
