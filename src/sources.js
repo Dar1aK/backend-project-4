@@ -35,12 +35,13 @@ const getFileName = (srcPath, pagePath) => {
   };
 
   const writeSource = (src, outputPath) => {
-    return axios.get(src, { responseType: "binary" })
+    const isBinary = !path.parse(src).ext === '.css' && !path.parse(src).ext === '.js'
+    return axios.get(src, { responseType: isBinary ? "binary" : 'text'  })
     .then((source) =>
       fsp.writeFile(
         outputPath,
         source.data,
-        "binary",
+        isBinary ? "binary": "utf-8",
       )
     )
     .catch((error) => {
