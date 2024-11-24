@@ -72,6 +72,18 @@ describe("pageLoader", () => {
             { encoding: "binary" },
           ),
       )
+      .get("/courses/assets/scripts1.js")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(
+              __dirname,
+              "../__fixtures__/courses/assets/scripts1.js",
+            ),
+            { encoding: "binary" },
+          ),
+      )
       .get("/courses/assets/scripts.js")
       .reply(
         200,
