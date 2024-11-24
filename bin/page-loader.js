@@ -10,7 +10,7 @@ program
   .name("page-loader")
   .description("Page loader utility")
   .version("1.0.0")
-  .option("-o, --output [dir]", 'output dir (default: "/home/user/current-dir"')
+  .option("-o, --output [dir]", 'output dir')
   .arguments("<path>")
   .action((path, options) => pageLoader(path, options.output));
 

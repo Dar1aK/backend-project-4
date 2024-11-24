@@ -17,19 +17,19 @@ const getFileName = (srcPath, pagePath) => {
     return `${srcName}${path.parse(src).ext}`
   }
 
-  const getSources = ($, dir, pagePath, filesDir) => {
-    const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
+const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
 
+  const getSources = ($, dir, pagePath, filesDir) => {
     return sources.reduce((acc, {tag, attr}) => {
-      const value = $(tag).map((_, { attribs }) => {
-        const prevAttr = attribs[attr]
-        const srcPath = !path.parse(prevAttr).ext ? `${prevAttr}.html` : prevAttr
-        prevAttr && $(`${tag}[${attr}="${prevAttr}"]`).attr(attr, path.join(
+      const value = $(tag).filter((_, { attribs }) => attribs[attr] && attribs[attr].startsWith("/"))
+      .map((_, { attribs }) => {
+        const attrib = attribs[attr]
+        const srcPath = !path.parse(attrib).ext ? `${attrib}.html` : attrib
+        $(`${tag}[${attr}="${attrib}"]`).attr(attr, path.join(
           dir,
           filesDir,
           getFileName(srcPath, pagePath),
         ))
-        return prevAttr
       })
       return [...acc, ...value]
     }, [])
@@ -55,21 +55,21 @@ const getFileName = (srcPath, pagePath) => {
     const $ = load(html)
 
     return Promise.resolve()
-      .then(() => {
+      .then(() => getSources($, dir, pagePath, filesDir))
+      .then((sources) => {
         const origin = new URL(pagePath).origin;
-        const listrTasks = getSources($, dir, pagePath, filesDir).map((pathSrc) => {
-          const src = pathSrc.startsWith("/")
-            ? `${origin}${pathSrc}`
-            : pathSrc;
+        const listrTasks = sources.map((pathSrc) => {
+          const src = `${origin}${pathSrc}`;
           const srcPath = !path.parse(src).ext ? `${src}.html` : src
+          const outputPath = path.join(
+            dir,
+            filesDir,
+            getFileName(srcPath, pagePath),
+          )
 
           return {
             title: src,
-            task: () => writeSource(src, path.join(
-              dir,
-              filesDir,
-              getFileName(srcPath, pagePath),
-            ))
+            task: () => writeSource(src, outputPath)
           };
         })
 
