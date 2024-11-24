@@ -63,7 +63,7 @@ describe("pageLoader", () => {
             { encoding: "binary" },
           ),
       )
-      .get("/assets/menu.css")
+      .get("/courses/assets/menu.css")
       .reply(
         200,
         async () =>

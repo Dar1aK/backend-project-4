@@ -20,17 +20,18 @@ const getFileName = (srcPath, pagePath) => {
 const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
 
   const getSources = ($, dir, pagePath, filesDir) => {
+    const origin = new URL(pagePath).origin;
     return sources.reduce((acc, {tag, attr}) => {
       const value = $(tag).filter((_, { attribs }) => attribs[attr] && (attribs[attr].startsWith("/") || attribs[attr].startsWith(pagePath)))
       .map((_, { attribs }) => {
-        const attrib = attribs[attr]
-        const srcPath = !path.parse(attrib).ext ? `${attrib}.html` : attrib
-        $(`${tag}[${attr}="${attrib}"]`).attr(attr, path.join(
+        const newAttrib = attribs[attr].startsWith("/") ? `${origin}${attribs[attr]}` : attribs[attr]
+        const srcPath = !path.parse(newAttrib).ext ? `${newAttrib}.html` : newAttrib
+        $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, path.join(
           dir,
           filesDir,
           getFileName(srcPath, pagePath),
         ))
-        return attrib
+        return newAttrib
       })
       return [...acc, ...value]
     }, [])
@@ -58,9 +59,7 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
     return Promise.resolve()
       .then(() => getSources($, dir, pagePath, filesDir))
       .then((sources) => {
-        const origin = new URL(pagePath).origin;
-        const listrTasks = sources.map((pathSrc) => {
-          const src = `${origin}${pathSrc}`;
+        const listrTasks = sources.map((src) => {
           const srcPath = !path.parse(src).ext ? `${src}.html` : src
           const outputPath = path.join(
             dir,
