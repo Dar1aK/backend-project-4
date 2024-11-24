@@ -21,7 +21,7 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
 
   const getSources = ($, dir, pagePath, filesDir) => {
     return sources.reduce((acc, {tag, attr}) => {
-      const value = $(tag).filter((_, { attribs }) => attribs[attr] && attribs[attr].startsWith("/"))
+      const value = $(tag).filter((_, { attribs }) => attribs[attr] && (attribs[attr].startsWith("/") || attribs[attr].startsWith(pagePath)))
       .map((_, { attribs }) => {
         const attrib = attribs[attr]
         const srcPath = !path.parse(attrib).ext ? `${attrib}.html` : attrib

@@ -30,6 +30,18 @@ describe("pageLoader", () => {
             { encoding: "utf8" },
           ),
       )
+      .get("/courses/assets/nodejs.png")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(
+              __dirname,
+              "../__fixtures__/courses/assets/nodejs.png",
+            ),
+            { encoding: "binary" },
+          ),
+      )
       .get("/photos/react.png")
       .reply(
         200,
@@ -103,14 +115,17 @@ describe("pageLoader", () => {
       encoding: "utf8",
     });
 
-    const img =
+    const img1 =
+      "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-nodejs.png";
+    const img2 =
       "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-photos-react.png";
     const css =
       "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-application.css";
     const js =
       "/home/runner/work/backend-project-4/backend-project-4/ru-hexlet-io-courses_files/ru-hexlet-io-courses-assets-scripts.js";
 
-    expect(fileResult.indexOf(img)).toBeGreaterThanOrEqual(0);
+    expect(fileResult.indexOf(img1)).toBeGreaterThanOrEqual(0);
+    expect(fileResult.indexOf(img2)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(css)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
   });
