@@ -30,6 +30,7 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
           filesDir,
           getFileName(srcPath, pagePath),
         ))
+        return attrib
       })
       return [...acc, ...value]
     }, [])
