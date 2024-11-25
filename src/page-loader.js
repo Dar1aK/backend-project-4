@@ -2,6 +2,7 @@ import axios from "axios";
 import fsp from "fs/promises";
 import debug from "debug";
 import path from "path";
+import { load } from "cheerio";
 
 import { getAndSaveSources } from './sources'
 import { getFilesDir, getFilePath } from './names'
@@ -12,6 +13,8 @@ const log = debug("page-loader");
 const pageLoader = async (pagePath, dir = process.cwd()) => {
   const htmlFileName = `${getFilePath(pagePath)}.html`
 
+  let $
+
   return fsp
     .access(dir)
     .then(() => fsp.mkdir(path.join(dir, getFilesDir(pagePath)), { recursive: true }))
@@ -21,11 +24,15 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
       log("start", html);
 
-      return getAndSaveSources(html, pagePath, dir);
+      return load(html) ;
     })
-    .then((html) => {
-      log("write html", html);
-      const promise = fsp.writeFile(path.join(dir, htmlFileName), html);
+    .then((pageOutput) => {
+      $ = pageOutput
+      return getAndSaveSources(pagePath, dir, $)
+    })
+    .then(() => {
+      log("write html", $);
+      const promise = fsp.writeFile(path.join(dir, htmlFileName), $.html());
       return promise.then(() => `${dir}/${htmlFileName}`)
     })
     .catch((error) => {

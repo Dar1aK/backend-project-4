@@ -1,7 +1,6 @@
 import axios from "axios";
 import fsp from "fs/promises";
 import path from "path";
-import { load } from "cheerio";
 import Listr from "listr";
 import debug from "debug";
 
@@ -44,14 +43,12 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
     });
   };
 
-  export const getAndSaveSources = (html, pagePath, dir) => {
+  export const getAndSaveSources = (pagePath, dir, outputPage) => {
     const filesDir = getFilesDir(pagePath)
     const tasks = (listrTasks) => new Listr(listrTasks);
 
-    const $ = load(html)
-
     return Promise.resolve()
-      .then(() => getSources($, dir, pagePath, filesDir))
+      .then(() => getSources(outputPage, dir, pagePath, filesDir))
       .then((sources) => {
         const listrTasks = sources.map((src) => {
           const srcPath = !path.parse(src).ext ? `${src}.html` : src
@@ -69,5 +66,4 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
 
         return tasks(listrTasks).run()
       })
-      .then(() => $.html())
   };
