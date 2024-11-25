@@ -5,17 +5,9 @@ import { load } from "cheerio";
 import Listr from "listr";
 import debug from "debug";
 
+import { getFilesDir, getFileName } from './names'
+
 const log = debug("page-loader");
-
-
-const getFileName = (srcPath, pagePath) => {
-    const origin = new URL(pagePath).origin;
-    const src = srcPath.startsWith("/")
-    ? `${origin}${srcPath}`
-    : srcPath;
-    const srcName = src.replace(/(https|http):\/\//g, '').replace(/.[a-zA-Z]*$/, '').replace(/\W+/g, "-");
-    return `${srcName}${path.parse(src).ext}`
-  }
 
 const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { tag: "script", attr: "src" }];
 
@@ -26,11 +18,12 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
       .map((_, { attribs }) => {
         const newAttrib = attribs[attr].startsWith("/") ? `${origin}${attribs[attr]}` : attribs[attr]
         const srcPath = !path.parse(newAttrib).ext ? `${newAttrib}.html` : newAttrib
-        $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, path.join(
+        const outputPath = path.join(
           dir,
           filesDir,
           getFileName(srcPath, pagePath),
-        ))
+        )
+        $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, outputPath)
         return newAttrib
       })
       return [...acc, ...value]
@@ -51,7 +44,8 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
     });
   };
 
-  export const getAndSaveSources = (html, pagePath, dir, filesDir) => {
+  export const getAndSaveSources = (html, pagePath, dir) => {
+    const filesDir = getFilesDir(pagePath)
     const tasks = (listrTasks) => new Listr(listrTasks);
 
     const $ = load(html)

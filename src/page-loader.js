@@ -3,36 +3,34 @@ import fsp from "fs/promises";
 import debug from "debug";
 import path from "path";
 
-
 import { getAndSaveSources } from './sources'
+import { getFilesDir, getFilePath } from './names'
 
 const log = debug("page-loader");
 
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
-  const filePath = pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, "-");
-  const filesDir = `${filePath}_files`;
-  const htmlFileName = `${filePath}.html`
+  const htmlFileName = `${getFilePath(pagePath)}.html`
 
   return fsp
     .access(dir)
-    .then(() => fsp.mkdir(path.join(dir, filesDir), { recursive: true }))
+    .then(() => fsp.mkdir(path.join(dir, getFilesDir(pagePath)), { recursive: true }))
     .then(() => axios.get(pagePath))
     .then((result) => {
       const html = result.data;
 
       log("start", html);
 
-      return getAndSaveSources(html, pagePath, dir, filesDir);
+      return getAndSaveSources(html, pagePath, dir);
     })
     .then((html) => {
       log("write html", html);
-      return fsp.writeFile(path.join(dir, htmlFileName), html)
+      const promise = fsp.writeFile(path.join(dir, htmlFileName), html);
+      return promise.then(() => `${dir}/${htmlFileName}`)
     })
-    .then(() => `${dir}/${htmlFileName}`)
     .catch((error) => {
       log("load page error", error);
-      throw Error(error);
+      throw error;
     });
 };
 
