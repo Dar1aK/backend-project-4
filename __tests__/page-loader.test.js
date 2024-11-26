@@ -30,12 +30,12 @@ describe("pageLoader", () => {
             { encoding: "utf8" },
           ),
       )
-      .get("/photos/react.jpg")
+      .get("/photos/me.jpg")
       .reply(
         200,
         async () =>
           await fsp.readFile(
-            path.resolve(__dirname, "../__fixtures__/photos/react.png"),
+            path.resolve(__dirname, "../__fixtures__/photos/me.jpg"),
             { encoding: "binary" },
           ),
       )
@@ -71,7 +71,54 @@ describe("pageLoader", () => {
       )
       .get("/courses/assets/not-exist.css")
       .reply(404);
+
+      nock("http://localhost")
+      .persist()
+      .get("/blog/about")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(__dirname, "../__fixtures__/blog/about/localhost-blog-about.html"),
+            { encoding: "utf8" },
+          ),
+      )
+      .get("/photos/me.jpg")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(__dirname, "../__fixtures__/photos/me.jpg"),
+            { encoding: "binary" },
+          ),
+      )
+      .get("/blog/about/assets/styles.css")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(
+              __dirname,
+              "../__fixtures__/blog/about/assets/styles.css",
+            ),
+            { encoding: "binary" },
+          ),
+      )
+      .get("/assets/scripts.js")
+      .reply(
+        200,
+        async () =>
+          await fsp.readFile(
+            path.resolve(
+              __dirname,
+              "../__fixtures__/assets/scripts.js",
+            ),
+            { encoding: "binary" },
+          ),
+      );
   });
+
+
 
   test("run pageLoader", async () => {
     const htmlPath = await pageLoader("https://site.com/blog/about");
@@ -81,6 +128,20 @@ describe("pageLoader", () => {
     });
     const fixture = await fsp.readFile(
       path.resolve(__dirname, "../__fixtures__/result/site-com-blog-about.html"),
+      { encoding: "utf8" },
+    );
+
+    expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
+  });
+
+  test("run pageLoader on localhost", async () => {
+    const htmlPath = await pageLoader("http://localhost/blog/about");
+
+    const fileResult = await fsp.readFile(path.resolve(htmlPath), {
+      encoding: "utf8",
+    });
+    const fixture = await fsp.readFile(
+      path.resolve(__dirname, "../__fixtures__/result/localhost-blog-about.html"),
       { encoding: "utf8" },
     );
 
