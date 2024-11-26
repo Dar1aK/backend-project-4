@@ -13,7 +13,7 @@ const sources = [{ tag: "img", attr: "src" }, { tag: "link", attr: "href" }, { t
   const getSources = ($, dir, pagePath, filesDir) => {
     const origin = new URL(pagePath).origin;
     return sources.reduce((acc, {tag, attr}) => {
-      const value = $(tag).filter((_, { attribs }) => attribs[attr] && (attribs[attr].startsWith("/") || attribs[attr].startsWith(pagePath)))
+      const value = $(tag).filter((_, { attribs }) =>  attribs[attr] && (attribs[attr].startsWith("/") || attribs[attr].startsWith(origin)))
       .map((_, { attribs }) => {
         const newAttrib = attribs[attr].startsWith("/") ? `${origin}${attribs[attr]}` : attribs[attr]
         const srcPath = !path.parse(newAttrib).ext ? `${newAttrib}.html` : newAttrib
