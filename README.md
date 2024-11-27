@@ -8,7 +8,7 @@
 
 ### Getting Started
 
-For using this game repository you need to have npm and Makefile installed on your computer.
+For using this repository you need to have npm and Makefile installed on your computer.
 
 #### Installation
 
