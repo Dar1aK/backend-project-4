@@ -13,3 +13,13 @@ export const getFileName = (srcPath, pagePath) => {
     .replace(/\W+/g, '-');
   return `${srcName}${path.parse(src).ext}`;
 };
+
+export const pathTransformation = (origin, attrib) => {
+  const newAttrib = attrib.startsWith('/')
+    ? `${origin}${attrib}`
+    : attrib;
+  const srcPath = !path.parse(newAttrib).ext
+    ? `${newAttrib}.html`
+    : newAttrib;
+  return { newAttrib, srcPath };
+};

@@ -4,7 +4,7 @@ import path from 'path';
 import Listr from 'listr';
 import debug from 'debug';
 
-import { getFilesDir, getFileName } from './utils.js';
+import { getFilesDir, getFileName, pathTransformation } from './utils.js';
 
 const log = debug('page-loader');
 
@@ -20,20 +20,14 @@ const getSources = ($, dir, pagePath, filesDir) => {
     const value = $(tag)
       .filter((_, { attribs }) => attribs[attr]
           && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
-      .map((_, params, arr) => {
+      .map((_, params) => {
         const { attribs } = params;
-        const newAttrib = attribs[attr].startsWith('/')
-          ? `${origin}${attribs[attr]}`
-          : attribs[attr];
-        const srcPath = !path.parse(newAttrib).ext
-          ? `${newAttrib}.html`
-          : newAttrib;
+        const { srcPath, newAttrib } = pathTransformation(origin, attribs[attr]);
         const outputPath = path.join(
           dir,
           filesDir,
           getFileName(srcPath, pagePath),
         );
-        console.log('_', _, '***', params);
         $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, outputPath);
         return newAttrib;
       });
