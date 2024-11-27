@@ -16,11 +16,11 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
   return fsp
     .access(dir)
-    .then(() => fsp.mkdir(path.join(dir, getFilesDir(pagePath)), {
+    .then(() => {return fsp.mkdir(path.join(dir, getFilesDir(pagePath)), {
         recursive: true,
-      }),
+      });},
     )
-    .then(() => axios.get(pagePath))
+    .then(() => {return axios.get(pagePath);})
     .then((result) => {
       const html = result.data;
 
@@ -35,7 +35,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
     .then(() => {
       log('write html', $);
       const promise = fsp.writeFile(path.join(dir, htmlFileName), $.html());
-      return promise.then(() => `${dir}/${htmlFileName}`);
+      return promise.then(() => {return `${dir}/${htmlFileName}`;});
     })
     .catch((error) => {
       log('load page error', error);

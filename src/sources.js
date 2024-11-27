@@ -15,12 +15,12 @@ const sources = [
 ];
 
 const getSources = ($, dir, pagePath, filesDir) => {
-  const origin = new URL(pagePath).origin;
+  const {origin} = new URL(pagePath);
   return sources.reduce((acc, { tag, attr }) => {
     const value = $(tag)
       .filter(
-        (_, { attribs }) => attribs[attr]
-          && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)),
+        (_, { attribs }) => {return attribs[attr]
+          && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin));},
       )
       .map((_, { attribs }) => {
         const newAttrib = attribs[attr].startsWith('/')
@@ -44,7 +44,7 @@ const getSources = ($, dir, pagePath, filesDir) => {
 const writeSource = (src, outputPath) => {
   return axios
     .get(src, { responseType: 'arraybuffer' })
-    .then((source) => fsp.writeFile(outputPath, source.data, 'binary'))
+    .then((source) => {return fsp.writeFile(outputPath, source.data, 'binary');})
     .catch((error) => {
       log('loadSources error', error);
     });
@@ -52,12 +52,12 @@ const writeSource = (src, outputPath) => {
 
 export const getAndSaveSources = (pagePath, dir, outputPage) => {
   const filesDir = getFilesDir(pagePath);
-  const tasks = (listrTasks) => new Listr(listrTasks);
+  const tasks = (listrTasks) => {return new Listr(listrTasks);};
 
   return Promise.resolve()
-    .then(() => getSources(outputPage, dir, pagePath, filesDir))
-    .then((sources) => {
-      const listrTasks = sources.map((src) => {
+    .then(() => {return getSources(outputPage, dir, pagePath, filesDir);})
+    .then((sourcesToSave) => {
+      const listrTasks = sourcesToSave.map((src) => {
         const srcPath = !path.parse(src).ext ? `${src}.html` : src;
         const outputPath = path.join(
           dir,
@@ -67,7 +67,7 @@ export const getAndSaveSources = (pagePath, dir, outputPage) => {
 
         return {
           title: src,
-          task: () => writeSource(src, outputPath),
+          task: () => {return writeSource(src, outputPath);},
         };
       });
 

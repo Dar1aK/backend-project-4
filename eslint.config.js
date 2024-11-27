@@ -8,6 +8,12 @@ export default [
       'prefer-const': 'error',
       'operator-linebreak': ['error', 'before'],
       'implicit-arrow-linebreak': ['error', 'beside'],
+      'prefer-destructuring': ['error', {
+      'array': true,
+      'object': true
+    }],
+    'arrow-body-style': ['error', 'always'],
+    'no-shadow': 'error'
     },
   },
 ];
