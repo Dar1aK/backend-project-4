@@ -4,8 +4,8 @@ import debug from 'debug';
 import path from 'path';
 import { load } from 'cheerio';
 
-import getAndSaveSources from './sources.js';
-import { getFilesDir, getFilePath } from './names.js';
+import getAndSaveSources from './sourcesUtils.js';
+import { getFilesDir, getFilePath } from './utils.js';
 
 const log = debug('page-loader');
 
@@ -25,16 +25,14 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
       log('start', html);
 
-      return load(html);
-    })
-    .then((pageOutput) => {
-      $ = pageOutput;
+      $ = load(html);
       return getAndSaveSources(pagePath, dir, $);
     })
-    .then(() => {
-      log('write html', $);
-      const promise = fsp.writeFile(path.join(dir, htmlFileName), $.html());
-      return promise.then(() => `${dir}/${htmlFileName}`);
+    .then((html) => {
+      log('write html', html);
+      const outputPath = path.join(dir, htmlFileName);
+      const promise = fsp.writeFile(outputPath, html);
+      return promise.then(() => outputPath);
     })
     .catch((error) => {
       log('load page error', error);

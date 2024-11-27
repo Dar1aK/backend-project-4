@@ -4,7 +4,7 @@ import path from 'path';
 import Listr from 'listr';
 import debug from 'debug';
 
-import { getFilesDir, getFileName } from './names.js';
+import { getFilesDir, getFileName } from './utils.js';
 
 const log = debug('page-loader');
 
@@ -20,7 +20,8 @@ const getSources = ($, dir, pagePath, filesDir) => {
     const value = $(tag)
       .filter((_, { attribs }) => attribs[attr]
           && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
-      .map((_, { attribs }) => {
+      .map((_, params, arr) => {
+        const { attribs } = params;
         const newAttrib = attribs[attr].startsWith('/')
           ? `${origin}${attribs[attr]}`
           : attribs[attr];
@@ -32,6 +33,7 @@ const getSources = ($, dir, pagePath, filesDir) => {
           filesDir,
           getFileName(srcPath, pagePath),
         );
+        console.log('_', _, '***', params);
         $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, outputPath);
         return newAttrib;
       });
@@ -68,7 +70,8 @@ const getAndSaveSources = (pagePath, dir, outputPage) => {
       });
 
       return tasks(listrTasks).run();
-    });
+    })
+    .then(() => outputPage.html());
 };
 
 export default getAndSaveSources;
