@@ -48,7 +48,6 @@ export const getAndSaveSources = (sourcesToSave, outputPage, dir, pagePath) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
   const filesDir = getFilesDir(pagePath);
 
-
   return Promise.resolve()
     .then(() => {
       const listrTasks = sourcesToSave.map((src) => {
