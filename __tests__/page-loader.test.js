@@ -12,9 +12,9 @@ describe('pageLoader', () => {
       .reply(200, () => fsp.readFile(
         path.resolve(
           __dirname,
-          '../__fixtures__/blog/about/site-com-blog-about.html'
+          '../__fixtures__/blog/about/site-com-blog-about.html',
         ),
-        { encoding: 'utf8' }
+        { encoding: 'utf8' },
       ))
       .get('/photos/me.jpg')
       .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/me.jpg'), {
@@ -24,14 +24,14 @@ describe('pageLoader', () => {
       .reply(200, () => fsp.readFile(
         path.resolve(
           __dirname,
-          '../__fixtures__/blog/about/assets/styles.css'
+          '../__fixtures__/blog/about/assets/styles.css',
         ),
-        { encoding: 'binary' }
+        { encoding: 'binary' },
       ))
       .get('/assets/scripts.js')
       .reply(200, () => fsp.readFile(
         path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
-        { encoding: 'binary' }
+        { encoding: 'binary' },
       ))
       .get('/11111')
       .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')))
@@ -44,9 +44,9 @@ describe('pageLoader', () => {
       .reply(200, () => fsp.readFile(
         path.resolve(
           __dirname,
-          '../__fixtures__/blog/about/localhost-blog-about.html'
+          '../__fixtures__/blog/about/localhost-blog-about.html',
         ),
-        { encoding: 'utf8' }
+        { encoding: 'utf8' },
       ))
       .get('/photos/me.jpg')
       .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/me.jpg'), {
@@ -56,14 +56,14 @@ describe('pageLoader', () => {
       .reply(200, () => fsp.readFile(
         path.resolve(
           __dirname,
-          '../__fixtures__/blog/about/assets/styles.css'
+          '../__fixtures__/blog/about/assets/styles.css',
         ),
-        { encoding: 'binary' }
+        { encoding: 'binary' },
       ))
       .get('/assets/scripts.js')
       .reply(200, () => fsp.readFile(
         path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
-        { encoding: 'binary' }
+        { encoding: 'binary' },
       ));
   });
 
@@ -76,9 +76,9 @@ describe('pageLoader', () => {
     const fixture = await fsp.readFile(
       path.resolve(
         __dirname,
-        '../__fixtures__/result/site-com-blog-about.html'
+        '../__fixtures__/result/site-com-blog-about.html',
       ),
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
 
     expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
@@ -93,9 +93,9 @@ describe('pageLoader', () => {
     const fixture = await fsp.readFile(
       path.resolve(
         __dirname,
-        '../__fixtures__/result/localhost-blog-about.html'
+        '../__fixtures__/result/localhost-blog-about.html',
       ),
-      { encoding: 'utf8' }
+      { encoding: 'utf8' },
     );
 
     expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
@@ -121,10 +121,10 @@ describe('pageLoader', () => {
   });
 
   test('check pageLoader with error link', async () => {
-    expect(async () => await pageLoader('https://site.com/11111')).rejects.toThrow();
+    expect(() => pageLoader('https://site.com/11111')).rejects.toThrow();
   });
 
   test('run pageLoader with not existing directory', async () => {
-    expect(async () => await pageLoader('https://site.com/blog/about', '/not-exist')).rejects.toThrow();
+    expect(() => pageLoader('https://site.com/blog/about', '/not-exist')).rejects.toThrow();
   });
 });

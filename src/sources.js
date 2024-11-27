@@ -30,7 +30,7 @@ const getSources = ($, dir, pagePath, filesDir) => {
         const outputPath = path.join(
           dir,
           filesDir,
-          getFileName(srcPath, pagePath)
+          getFileName(srcPath, pagePath),
         );
         $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, outputPath);
         return newAttrib;
@@ -58,7 +58,7 @@ export const getAndSaveSources = (pagePath, dir, outputPage) => {
         const outputPath = path.join(
           dir,
           filesDir,
-          getFileName(srcPath, pagePath)
+          getFileName(srcPath, pagePath),
         );
 
         return {

@@ -10,15 +10,15 @@ export default [
       'implicit-arrow-linebreak': ['error', 'beside'],
       'prefer-destructuring': ['error', {
         'array': true,
-        'object': true
+        'object': true,
       }],
       'arrow-body-style': ['error', 'as-needed'],
       'no-shadow': 'error',
-      'block-spacing': "error",
-      'object-curly-spacing': ["error", "always"],
-      'function-paren-newline': ["error", "multiline"],
-      'indent': ["error", 2],
-      'comma-dangle': ["error", 'only-multiline']
+      'block-spacing': 'error',
+      'object-curly-spacing': ['error', 'always'],
+      'function-paren-newline': ['error', 'multiline'],
+      'indent': ['error', 2],
+      'comma-dangle': ['error', 'always-multiline'],
     },
   },
 ];
