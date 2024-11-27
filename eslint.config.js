@@ -1,22 +1,23 @@
 import globals from 'globals';
 
 export default [
-  {
-    languageOptions: { globals: globals.node },
-    rules: {
-      semi: 'error',
-      'prefer-const': 'error',
-      'operator-linebreak': ['error', 'before'],
-      'implicit-arrow-linebreak': ['error', 'beside'],
-      'prefer-destructuring': ['error', {
-      'array': true,
-      'object': true
-    }],
-    'arrow-body-style': ['error', 'as-needed'],
-    'no-shadow': 'error',
-    'block-spacing': "error",
-    'object-curly-spacing': ["error", "always"],
-    'function-paren-newline': ["error", "never"]
-    },
+ {
+  languageOptions: { globals: globals.node },
+  rules: {
+   semi: 'error',
+   'prefer-const': 'error',
+   'operator-linebreak': ['error', 'before'],
+   'implicit-arrow-linebreak': ['error', 'beside'],
+   'prefer-destructuring': ['error', {
+    'array': true,
+    'object': true
+   }],
+   'arrow-body-style': ['error', 'as-needed'],
+   'no-shadow': 'error',
+   'block-spacing': "error",
+   'object-curly-spacing': ["error", "always"],
+   'function-paren-newline': ["error", "never"],
+   'indent': ["error", 1]
   },
+ },
 ];
