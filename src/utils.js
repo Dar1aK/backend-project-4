@@ -15,11 +15,11 @@ export const getFileName = (srcPath, pagePath) => {
 };
 
 export const pathTransformation = (origin, attrib) => {
-  const newAttrib = attrib.startsWith('/')
+  const newPath = attrib.startsWith('/')
     ? `${origin}${attrib}`
     : attrib;
-  const srcPath = !path.parse(newAttrib).ext
-    ? `${newAttrib}.html`
-    : newAttrib;
+  const srcPath = !path.parse(newPath).ext
+    ? `${newPath}.html`
+    : newPath;
   return { newPath, srcPath };
 };
