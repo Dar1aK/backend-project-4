@@ -117,11 +117,11 @@ describe('pageLoader', () => {
     expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
   });
 
-  test('check pageLoader with error link', () => {
-    expect(() => pageLoader('https://site.com/11111')).rejects.toThrow();
+  test('check pageLoader with error link', async () => {
+    await expect(() => pageLoader('https://site.com/11111')).rejects.toThrow();
   });
 
-  test('run pageLoader with not existing directory', () => {
-    expect(() => pageLoader('https://site.com/blog/about', '/not-exist')).rejects.toThrow();
+  test('run pageLoader with not existing directory', async () => {
+    await expect(() => pageLoader('https://site.com/blog/about', '/not-exist')).rejects.toThrow();
   });
 });
