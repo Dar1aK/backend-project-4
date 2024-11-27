@@ -1,5 +1,4 @@
 import fsp from 'fs/promises';
-import os from 'os';
 import path from 'path';
 import nock from 'nock';
 
@@ -10,52 +9,36 @@ describe('pageLoader', () => {
     nock('https://site.com')
       .persist()
       .get('/blog/about')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(
-              __dirname,
-              '../__fixtures__/blog/about/site-com-blog-about.html',
-            ),
-            { encoding: 'utf8' },
+      .reply(200, () => fsp.readFile(
+          path.resolve(
+            __dirname,
+            '../__fixtures__/blog/about/site-com-blog-about.html',
           ),
+          { encoding: 'utf8' },
+        ),
       )
       .get('/photos/me.jpg')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(__dirname, '../__fixtures__/photos/me.jpg'),
-            { encoding: 'binary' },
-          ),
+      .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/me.jpg'), {
+          encoding: 'binary',
+        }),
       )
       .get('/blog/about/assets/styles.css')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(
-              __dirname,
-              '../__fixtures__/blog/about/assets/styles.css',
-            ),
-            { encoding: 'binary' },
+      .reply(200, () => fsp.readFile(
+          path.resolve(
+            __dirname,
+            '../__fixtures__/blog/about/assets/styles.css',
           ),
+          { encoding: 'binary' },
+        ),
       )
       .get('/assets/scripts.js')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
-            { encoding: 'binary' },
-          ),
+      .reply(200, () => fsp.readFile(
+          path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
+          { encoding: 'binary' },
+        ),
       )
       .get('/11111')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')),
+      .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/11111')),
       )
       .get('/courses/assets/not-exist.css')
       .reply(404);
@@ -63,46 +46,33 @@ describe('pageLoader', () => {
     nock('http://localhost')
       .persist()
       .get('/blog/about')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(
-              __dirname,
-              '../__fixtures__/blog/about/localhost-blog-about.html',
-            ),
-            { encoding: 'utf8' },
+      .reply(200, () => fsp.readFile(
+          path.resolve(
+            __dirname,
+            '../__fixtures__/blog/about/localhost-blog-about.html',
           ),
+          { encoding: 'utf8' },
+        ),
       )
       .get('/photos/me.jpg')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(__dirname, '../__fixtures__/photos/me.jpg'),
-            { encoding: 'binary' },
-          ),
+      .reply(200, () => fsp.readFile(path.resolve(__dirname, '../__fixtures__/photos/me.jpg'), {
+          encoding: 'binary',
+        }),
       )
       .get('/blog/about/assets/styles.css')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(
-              __dirname,
-              '../__fixtures__/blog/about/assets/styles.css',
-            ),
-            { encoding: 'binary' },
+      .reply(200, () => fsp.readFile(
+          path.resolve(
+            __dirname,
+            '../__fixtures__/blog/about/assets/styles.css',
           ),
+          { encoding: 'binary' },
+        ),
       )
       .get('/assets/scripts.js')
-      .reply(
-        200,
-        async () =>
-          await fsp.readFile(
-            path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
-            { encoding: 'binary' },
-          ),
+      .reply(200, () => fsp.readFile(
+          path.resolve(__dirname, '../__fixtures__/assets/scripts.js'),
+          { encoding: 'binary' },
+        ),
       );
   });
 
@@ -151,12 +121,12 @@ describe('pageLoader', () => {
       encoding: 'utf8',
     });
 
-    const img =
-      '/home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-photos-me.jpg';
-    const css =
-      '/home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-blog-about-assets-styles.css';
-    const js =
-      '/home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-assets-scripts.js';
+    const img
+      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-photos-me.jpg';
+    const css
+      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-blog-about-assets-styles.css';
+    const js
+      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-assets-scripts.js';
 
     expect(fileResult.indexOf(img)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(css)).toBeGreaterThanOrEqual(0);

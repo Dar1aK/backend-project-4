@@ -19,9 +19,8 @@ const getSources = ($, dir, pagePath, filesDir) => {
   return sources.reduce((acc, { tag, attr }) => {
     const value = $(tag)
       .filter(
-        (_, { attribs }) =>
-          attribs[attr] &&
-          (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)),
+        (_, { attribs }) => attribs[attr]
+          && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)),
       )
       .map((_, { attribs }) => {
         const newAttrib = attribs[attr].startsWith('/')

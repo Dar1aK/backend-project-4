@@ -16,8 +16,7 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
   return fsp
     .access(dir)
-    .then(() =>
-      fsp.mkdir(path.join(dir, getFilesDir(pagePath)), {
+    .then(() => fsp.mkdir(path.join(dir, getFilesDir(pagePath)), {
         recursive: true,
       }),
     )

@@ -1,7 +1,6 @@
 import path from 'path';
 
-export const getFilePath = (pagePath) =>
-  pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, '-');
+export const getFilePath = (pagePath) => pagePath.replace(/(https|http):\/\//g, '').replace(/\W+/g, '-');
 
 export const getFilesDir = (pagePath) => `${getFilePath(pagePath)}_files`;
 
