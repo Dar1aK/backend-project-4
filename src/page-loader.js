@@ -4,7 +4,7 @@ import debug from 'debug';
 import path from 'path';
 import { load } from 'cheerio';
 
-import { getAndSaveSources } from './sources.js';
+import getAndSaveSources from './sources.js';
 import { getFilesDir, getFilePath } from './names.js';
 
 const log = debug('page-loader');

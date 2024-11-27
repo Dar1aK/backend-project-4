@@ -108,23 +108,20 @@ describe('pageLoader', () => {
       encoding: 'utf8',
     });
 
-    const img
-      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-photos-me.jpg';
-    const css
-      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-blog-about-assets-styles.css';
-    const js
-      = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-assets-scripts.js';
+    const img = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-photos-me.jpg';
+    const css = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-blog-about-assets-styles.css';
+    const js = 'home/runner/work/backend-project-4/backend-project-4/site-com-blog-about_files/site-com-assets-scripts.js';
 
     expect(fileResult.indexOf(img)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(css)).toBeGreaterThanOrEqual(0);
     expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
   });
 
-  test('check pageLoader with error link', async () => {
+  test('check pageLoader with error link', () => {
     expect(() => pageLoader('https://site.com/11111')).rejects.toThrow();
   });
 
-  test('run pageLoader with not existing directory', async () => {
+  test('run pageLoader with not existing directory', () => {
     expect(() => pageLoader('https://site.com/blog/about', '/not-exist')).rejects.toThrow();
   });
 });

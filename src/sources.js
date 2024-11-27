@@ -46,7 +46,7 @@ const writeSource = (src, outputPath) => axios
     log('loadSources error', error);
   });
 
-export const getAndSaveSources = (pagePath, dir, outputPage) => {
+const getAndSaveSources = (pagePath, dir, outputPage) => {
   const filesDir = getFilesDir(pagePath);
   const tasks = (listrTasks) => new Listr(listrTasks);
 
@@ -70,3 +70,5 @@ export const getAndSaveSources = (pagePath, dir, outputPage) => {
       return tasks(listrTasks).run();
     });
 };
+
+export default getAndSaveSources;
