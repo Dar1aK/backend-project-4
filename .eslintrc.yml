@@ -1,0 +1,14 @@
+---
+root: true
+
+parser: babel-eslint
+extends:
+  # http://eslint.org/docs/user-guide/configuring#using-eslintrecommended
+  - eslint:recommended
+  # https://www.npmjs.com/package/eslint-config-airbnb-base
+  - airbnb
+
+plugins:
+  - import
+  - async-await
+  - jest
