@@ -4,15 +4,14 @@ import debug from 'debug';
 import path from 'path';
 import { load } from 'cheerio';
 
-import getAndSaveSources from './sourcesUtils.js';
+import { getAndSaveSources, getSources } from './sourcesUtils.js';
 import { getFilesDir, getFilePath } from './utils.js';
 
 const log = debug('page-loader');
 
 const pageLoader = async (pagePath, dir = process.cwd()) => {
   const htmlFileName = `${getFilePath(pagePath)}.html`;
-
-  let $;
+  let outputPage;
 
   return fsp
     .access(dir)
@@ -25,9 +24,10 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
 
       log('start', html);
 
-      $ = load(html);
-      return getAndSaveSources(pagePath, dir, $);
+      outputPage = load(html);
+      return getSources(outputPage, dir, pagePath);
     })
+    .then((sourcesToSave) => getAndSaveSources(sourcesToSave, outputPage, dir, pagePath))
     .then((html) => {
       log('write html', html);
       const outputPath = path.join(dir, htmlFileName);

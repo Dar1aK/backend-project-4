@@ -14,22 +14,24 @@ const sources = [
   { tag: 'script', attr: 'src' },
 ];
 
-const getSources = ($, dir, pagePath, filesDir) => {
+export const getSources = ($, dir, pagePath) => {
   const { origin } = new URL(pagePath);
+  const filesDir = getFilesDir(pagePath);
+
   return sources.reduce((acc, { tag, attr }) => {
     const value = $(tag)
-      .filter((_, { attribs }) => attribs[attr]
-          && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
-      .map((_, params) => {
-        const { attribs } = params;
-        const { srcPath, newAttrib } = pathTransformation(origin, attribs[attr]);
+      .filter((_, { attribs }) => attribs[attr] && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
+      .toArray()
+      .map((item) => ({ element: $(item), attribs: item.attribs }))
+      .map(({ element, attribs }) => {
+        const { srcPath, newPath } = pathTransformation(origin, attribs[attr]);
         const outputPath = path.join(
           dir,
           filesDir,
           getFileName(srcPath, pagePath),
         );
-        $(`${tag}[${attr}="${attribs[attr]}"]`).attr(attr, outputPath);
-        return newAttrib;
+        element.attr(attr, outputPath);
+        return newPath;
       });
     return [...acc, ...value];
   }, []);
@@ -42,13 +44,13 @@ const writeSource = (src, outputPath) => axios
     log('loadSources error', error);
   });
 
-const getAndSaveSources = (pagePath, dir, outputPage) => {
-  const filesDir = getFilesDir(pagePath);
+export const getAndSaveSources = (sourcesToSave, outputPage, dir, pagePath) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
+  const filesDir = getFilesDir(pagePath);
+
 
   return Promise.resolve()
-    .then(() => getSources(outputPage, dir, pagePath, filesDir))
-    .then((sourcesToSave) => {
+    .then(() => {
       const listrTasks = sourcesToSave.map((src) => {
         const srcPath = !path.parse(src).ext ? `${src}.html` : src;
         const outputPath = path.join(
@@ -67,5 +69,3 @@ const getAndSaveSources = (pagePath, dir, outputPage) => {
     })
     .then(() => outputPage.html());
 };
-
-export default getAndSaveSources;

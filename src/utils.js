@@ -21,5 +21,5 @@ export const pathTransformation = (origin, attrib) => {
   const srcPath = !path.parse(newAttrib).ext
     ? `${newAttrib}.html`
     : newAttrib;
-  return { newAttrib, srcPath };
+  return { newPath, srcPath };
 };
