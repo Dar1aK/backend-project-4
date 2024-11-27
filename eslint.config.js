@@ -12,8 +12,11 @@ export default [
       'array': true,
       'object': true
     }],
-    'arrow-body-style': ['error', 'always'],
-    'no-shadow': 'error'
+    'arrow-body-style': ['error', 'as-needed'],
+    'no-shadow': 'error',
+    'block-spacing': "error",
+    'object-curly-spacing': ["error", "always"],
+    'function-paren-newline': ["error", "never"]
     },
   },
 ];

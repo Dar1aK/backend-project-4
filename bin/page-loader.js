@@ -12,6 +12,6 @@ program
   .version('1.0.0')
   .option('-o, --output [dir]', 'output dir')
   .arguments('<path>')
-  .action((path, options) => {return pageLoader(path, options.output);});
+  .action((path, options) => pageLoader(path, options.output));
 
 program.parse(process.argv);
