@@ -20,15 +20,15 @@ export const getSources = ($, dir, pagePath) => {
 
   return sources.reduce((acc, { tag, attr }) => {
     const value = $(tag)
-      .filter((_, { attribs }) => attribs[attr] && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
       .toArray()
       .map((item) => ({ element: $(item), attribs: item.attribs }))
+      .filter(({ attribs }) => attribs[attr] && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
       .map(({ element, attribs }) => {
         const { srcPath, newPath } = pathTransformation(origin, attribs[attr]);
         const outputPath = path.join(
           dir,
           filesDir,
-          getFileName(srcPath, pagePath),
+          getFileName(srcPath, origin),
         );
         element.attr(attr, outputPath);
         return newPath;
@@ -46,6 +46,7 @@ const writeSource = (src, outputPath) => axios
 
 export const getAndSaveSources = (sourcesToSave, outputPage, dir, pagePath) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
+  const { origin } = new URL(pagePath);
   const filesDir = getFilesDir(pagePath);
 
   return Promise.resolve()
@@ -55,7 +56,7 @@ export const getAndSaveSources = (sourcesToSave, outputPage, dir, pagePath) => {
         const outputPath = path.join(
           dir,
           filesDir,
-          getFileName(srcPath, pagePath),
+          getFileName(srcPath, origin),
         );
 
         return {
