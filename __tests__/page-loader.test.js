@@ -47,7 +47,7 @@ describe('pageLoader', () => {
       { encoding: 'utf8' },
     );
 
-    expect(JSON.stringify(fileResult).replace(/\s+/g, '')).toBe(JSON.stringify(fixture).replace(/\s+/g, ''));
+    expect(fileResult.trim()).toBe(fixture.trim());
   });
 
   test('check pageLoader with sources', async () => {
