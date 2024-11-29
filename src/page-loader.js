@@ -17,12 +17,11 @@ const pageLoader = async (pagePath, dir = os.tmpdir()) => {
 
   return fsp
     .access(dir)
-    .then(() => fsp.mkdtemp(path.join(dir, 'page-loader-'), {
-      recursive: true,
-    }))
-    .then((tempPath) => {
-      filesDir = path.join(tempPath, getFilesDir(pagePath));
-      return fsp.mkdir(filesDir);
+    .then(() => {
+      filesDir = path.join(dir, getFilesDir(pagePath));
+      return fsp.mkdir(filesDir, {
+        recursive: true,
+      });
     })
     .then(() => axios.get(pagePath))
     .then((result) => {

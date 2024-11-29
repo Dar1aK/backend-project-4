@@ -4,7 +4,7 @@ import path from 'path';
 import Listr from 'listr';
 import debug from 'debug';
 
-import { getFilesDir, getFileName, pathTransformation } from './utils.js';
+import { getFileName, pathTransformation } from './utils.js';
 
 const log = debug('page-loader');
 

@@ -14,11 +14,9 @@ const readFileFixture = async (fixturePath) => await fsp.readFile(
 );
 
 describe('pageLoader', () => {
-  let dir = tmpdir();
+  const dir = tmpdir();
 
   beforeEach(async () => {
-    dir = await fsp.mkdtemp(dir);
-
     nock('https://site.com')
       .persist()
       .get('/blog/about')
