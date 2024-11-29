@@ -1,6 +1,6 @@
 import axios from 'axios';
 import fsp from 'fs/promises';
-import { tmpdir } from 'node:os';
+import os from 'os';
 import debug from 'debug';
 import path from 'path';
 import { load } from 'cheerio';
@@ -10,16 +10,20 @@ import { getFilesDir, getFilePath } from './utils.js';
 
 const log = debug('page-loader');
 
-const pageLoader = async (pagePath, dir = tmpdir()) => {
+const pageLoader = async (pagePath, dir = os.tmpdir()) => {
   let outputPage;
-  const filesDir = getFilesDir(pagePath);
+  let filesDir = getFilesDir(pagePath);
   const { origin } = new URL(pagePath);
 
   return fsp
     .access(dir)
-    .then(() => fsp.mkdtemp(path.join(dir, getFilesDir(pagePath)), {
+    .then(() => fsp.mkdtemp(path.join(dir, 'page-loader-'), {
       recursive: true,
     }))
+    .then((tempPath) => {
+      filesDir = path.join(tempPath, getFilesDir(pagePath));
+      return fsp.mkdir(filesDir);
+    })
     .then(() => axios.get(pagePath))
     .then((result) => {
       const html = result.data;
@@ -27,14 +31,10 @@ const pageLoader = async (pagePath, dir = tmpdir()) => {
       log('start', html);
 
       outputPage = load(html);
-      return getSources(outputPage, dir, origin, filesDir);
+      return getSources(outputPage, filesDir, origin);
     })
     .then((sourcesToSave) => {
-      const fullDirPath = path.join(
-        dir,
-        filesDir,
-      );
-      const promise = downloadAndSaveSources(sourcesToSave, fullDirPath, origin);
+      const promise = downloadAndSaveSources(sourcesToSave, filesDir, origin);
       return promise.then(() => outputPage.html());
     })
     .then((html) => {

@@ -14,7 +14,7 @@ const sources = [
   { tag: 'script', attr: 'src' },
 ];
 
-export const getSources = ($, dir, origin, filesDir) => sources.reduce((acc, { tag, attr }) => {
+export const getSources = ($, filesDir, origin) => sources.reduce((acc, { tag, attr }) => {
   const value = $(tag)
     .toArray()
     .map((item) => ({ element: $(item), attribs: item.attribs }))
@@ -22,7 +22,6 @@ export const getSources = ($, dir, origin, filesDir) => sources.reduce((acc, { t
     .map(({ element, attribs }) => {
       const { srcPath, newPath } = pathTransformation(origin, attribs[attr]);
       const outputPath = path.join(
-        dir,
         filesDir,
         getFileName(srcPath, origin),
       );
@@ -40,12 +39,12 @@ const writeSource = (src, outputPath) => axios
     log('loadSources error', error);
   });
 
-export const downloadAndSaveSources = (sourcesToSave, fullDirPath, origin) => {
+export const downloadAndSaveSources = (sourcesToSave, filesDir, origin) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
   const listrTasks = sourcesToSave.map((src) => {
     const srcPath = !path.parse(src).ext ? `${src}.html` : src;
     const outputPath = path.join(
-      fullDirPath,
+      filesDir,
       getFileName(srcPath, origin),
     );
 
