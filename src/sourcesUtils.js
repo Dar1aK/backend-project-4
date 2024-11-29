@@ -14,28 +14,24 @@ const sources = [
   { tag: 'script', attr: 'src' },
 ];
 
-export const getSources = ($, dir, pagePath) => {
-  const { origin } = new URL(pagePath);
-  const filesDir = getFilesDir(pagePath);
+export const getSources = ($, dir, origin, filesDir) => sources.reduce((acc, { tag, attr }) => {
+  const value = $(tag)
+    .toArray()
+    .map((item) => ({ element: $(item), attribs: item.attribs }))
+    .filter(({ attribs }) => attribs[attr] && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
+    .map(({ element, attribs }) => {
+      const { srcPath, newPath } = pathTransformation(origin, attribs[attr]);
+      const outputPath = path.join(
+        dir,
+        filesDir,
+        getFileName(srcPath, origin),
+      );
+      element.attr(attr, outputPath);
+      return newPath;
+    });
+  return [...acc, ...value];
+}, []);
 
-  return sources.reduce((acc, { tag, attr }) => {
-    const value = $(tag)
-      .toArray()
-      .map((item) => ({ element: $(item), attribs: item.attribs }))
-      .filter(({ attribs }) => attribs[attr] && (attribs[attr].startsWith('/') || attribs[attr].startsWith(origin)))
-      .map(({ element, attribs }) => {
-        const { srcPath, newPath } = pathTransformation(origin, attribs[attr]);
-        const outputPath = path.join(
-          dir,
-          filesDir,
-          getFileName(srcPath, origin),
-        );
-        element.attr(attr, outputPath);
-        return newPath;
-      });
-    return [...acc, ...value];
-  }, []);
-};
 
 const writeSource = (src, outputPath) => axios
   .get(src, { responseType: 'arraybuffer' })
@@ -44,28 +40,20 @@ const writeSource = (src, outputPath) => axios
     log('loadSources error', error);
   });
 
-export const getAndSaveSources = (sourcesToSave, outputPage, dir, pagePath) => {
+export const downloadAndSaveSources = (sourcesToSave, fullDirPath, origin) => {
   const tasks = (listrTasks) => new Listr(listrTasks);
-  const { origin } = new URL(pagePath);
-  const filesDir = getFilesDir(pagePath);
+  const listrTasks = sourcesToSave.map((src) => {
+    const srcPath = !path.parse(src).ext ? `${src}.html` : src;
+    const outputPath = path.join(
+      fullDirPath,
+      getFileName(srcPath, origin),
+    );
 
-  return Promise.resolve()
-    .then(() => {
-      const listrTasks = sourcesToSave.map((src) => {
-        const srcPath = !path.parse(src).ext ? `${src}.html` : src;
-        const outputPath = path.join(
-          dir,
-          filesDir,
-          getFileName(srcPath, origin),
-        );
+    return {
+      title: src,
+      task: () => writeSource(src, outputPath),
+    };
+  });
 
-        return {
-          title: src,
-          task: () => writeSource(src, outputPath),
-        };
-      });
-
-      return tasks(listrTasks).run();
-    })
-    .then(() => outputPage.html());
+  return tasks(listrTasks).run();
 };

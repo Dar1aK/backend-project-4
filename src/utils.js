@@ -14,9 +14,7 @@ export const getFileName = (srcPath, origin) => {
 };
 
 export const pathTransformation = (origin, attrib) => {
-  const newPath = attrib.startsWith('/')
-    ? `${origin}${attrib}`
-    : attrib;
+  const newPath = new URL(attrib, origin).toString();
   const srcPath = !path.parse(newPath).ext
     ? `${newPath}.html`
     : newPath;
