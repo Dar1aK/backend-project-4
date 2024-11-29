@@ -40,6 +40,7 @@ const pageLoader = async (pagePath, dir = os.tmpdir()) => {
       log('write html', html);
       const outputPath = path.join(dir, `${getFilePath(pagePath)}.html`);
       const promise = fsp.writeFile(outputPath, html);
+      log('outputPath html', outputPath, 'dir', dir);
       return promise.then(() => outputPath);
     })
     .catch((error) => {
