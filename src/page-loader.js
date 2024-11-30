@@ -10,7 +10,7 @@ import { getFilesDir, getFilePath } from './utils.js';
 
 const log = debug('page-loader');
 
-const pageLoader = async (pagePath, dir = os.tmpdir()) => {
+const pageLoader = async (pagePath, dir = process.cwd()) => {
   let outputPage;
   let filesDir = getFilesDir(pagePath);
   const { origin } = new URL(pagePath);
@@ -41,6 +41,7 @@ const pageLoader = async (pagePath, dir = os.tmpdir()) => {
       const outputPath = path.join(dir, `${getFilePath(pagePath)}.html`);
       const promise = fsp.writeFile(outputPath, html);
       log('outputPath html', outputPath, 'dir', dir);
+      console.log('outputPath html', outputPath, 'dir', dir);
       return promise.then(() => outputPath);
     })
     .catch((error) => {

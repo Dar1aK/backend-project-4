@@ -34,7 +34,7 @@ describe('pageLoader', () => {
   });
 
   test('run pageLoader', async () => {
-    const htmlPath = await pageLoader('https://site.com/blog/about');
+    const htmlPath = await pageLoader('https://site.com/blog/about', dir);
 
     const fileResult = await fsp.readFile(path.resolve(htmlPath), {
       encoding: 'utf8',
@@ -51,7 +51,7 @@ describe('pageLoader', () => {
   });
 
   test('check pageLoader with sources', async () => {
-    const htmlPath = await pageLoader('https://site.com/blog/about');
+    const htmlPath = await pageLoader('https://site.com/blog/about', dir);
 
     const fileResult = await fsp.readFile(path.resolve(htmlPath), {
       encoding: 'utf8',
