@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 
 import pageLoader from '../src/page-loader';
 
-const readFileFixture = async (fixturePath) => await fsp.readFile(
+const readFileFixture = (fixturePath) => fsp.readFile(
   path.resolve(
     __dirname,
     fixturePath,
@@ -22,13 +22,13 @@ describe('pageLoader', () => {
       .get('/blog/about')
       .reply(200, () => readFileFixture('../__fixtures__/blog/about/site-com-blog-about.html'))
       .get('/photos/me.jpg')
-      .reply(200,  () => readFileFixture('../__fixtures__/photos/me.jpg'))
+      .reply(200, () => readFileFixture('../__fixtures__/photos/me.jpg'))
       .get('/blog/about/assets/styles.css')
-      .reply(200,  () => readFileFixture('../__fixtures__/blog/about/assets/styles.css'))
+      .reply(200, () => readFileFixture('../__fixtures__/blog/about/assets/styles.css'))
       .get('/assets/scripts.js')
-      .reply(200, () =>  readFileFixture('../__fixtures__/assets/scripts.js'))
+      .reply(200, () => readFileFixture('../__fixtures__/assets/scripts.js'))
       .get('/11111')
-      .reply(200,  () => readFileFixture('../__fixtures__/11111'))
+      .reply(200, () => readFileFixture('../__fixtures__/11111'))
       .get('/courses/assets/not-exist.css')
       .reply(404);
   });

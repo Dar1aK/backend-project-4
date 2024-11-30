@@ -1,6 +1,5 @@
 import axios from 'axios';
 import fsp from 'fs/promises';
-import os from 'os';
 import debug from 'debug';
 import path from 'path';
 import { load } from 'cheerio';
@@ -41,7 +40,6 @@ const pageLoader = async (pagePath, dir = process.cwd()) => {
       const outputPath = path.join(dir, `${getFilePath(pagePath)}.html`);
       const promise = fsp.writeFile(outputPath, html);
       log('outputPath html', outputPath, 'dir', dir);
-      console.log('outputPath html', outputPath, 'dir', dir);
       return promise.then(() => outputPath);
     })
     .catch((error) => {

@@ -31,7 +31,6 @@ export const getSources = ($, filesDir, origin) => sources.reduce((acc, { tag, a
   return [...acc, ...value];
 }, []);
 
-
 const writeSource = (src, outputPath) => axios
   .get(src, { responseType: 'arraybuffer' })
   .then((source) => fsp.writeFile(outputPath, source.data, 'binary'))
