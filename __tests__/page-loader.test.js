@@ -66,6 +66,25 @@ describe('pageLoader', () => {
     expect(fileResult.indexOf(js)).toBeGreaterThanOrEqual(0);
   });
 
+  test('check saved sources', async () => {
+    const newCssPath = path.join(dir, '/site-com-blog-about_files/site-com-blog-about-assets-styles.css');
+    const newCssFile = await fsp.readFile(path.resolve(newCssPath), {
+      encoding: 'utf8',
+    });
+
+    const newJsPath = path.join(dir, '/site-com-blog-about_files/site-com-assets-scripts.js');
+    const newJsFile = await fsp.readFile(path.resolve(newJsPath), {
+      encoding: 'utf8',
+    });
+
+    const fixtureCssFile = await readFileFixture('../__fixtures__/blog/about/assets/styles.css');
+    const fixtureJsFile = await readFileFixture('../__fixtures__/assets/scripts.js');
+
+
+    expect(newCssFile.trim()).toBe(fixtureCssFile.trim());
+    expect(newJsFile.trim()).toBe(fixtureJsFile.trim());
+  });
+
   test('check pageLoader with error link', async () => {
     await expect(() => pageLoader('https://site.com/11111')).rejects.toThrow();
   });
