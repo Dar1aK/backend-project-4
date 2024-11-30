@@ -80,7 +80,6 @@ describe('pageLoader', () => {
     const fixtureCssFile = await readFileFixture('../__fixtures__/blog/about/assets/styles.css');
     const fixtureJsFile = await readFileFixture('../__fixtures__/assets/scripts.js');
 
-
     expect(newCssFile.trim()).toBe(fixtureCssFile.trim());
     expect(newJsFile.trim()).toBe(fixtureJsFile.trim());
   });
